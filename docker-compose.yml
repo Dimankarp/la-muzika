@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=studs
+      - POSTGRES_USER=muzika
+      - POSTGRES_PASSWORD=tchaikovsky
+    networks:
+      - wildfly
+  wildfly:
+    build:
+      context: wildfly/
+    networks:
+      - wildfly
+    ports:
+      - "8080:8080"
+      - "8787:8787"
+      - "9990:9990"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=studs
+      - DB_USER=muzika
+      - DB_PASS=tchaikovsky
+      - DATASOURCE_NAME=PostgresDS
+      - DATASOURCE_JNDI=PostgresDS
+    depends_on:
+      - postgres
+    # Uncomment when on Unix - bind mount
+    # makes deployments scanner go crazy
+    # and redeploy constantly.
+    # volumes:
+    #   - type: volume
+    #     source: ./build/libs
+    #     target: /opt/jboss/wildfly/standalone/deployments
+    #     volume:
+    #       nocopy: true
+networks:
+  wildfly:
