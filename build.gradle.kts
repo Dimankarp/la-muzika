@@ -3,23 +3,23 @@ plugins {
     id("war")
 }
 
-group "modernovo"
-version "1.0-SNAPSHOT"
+group = "modernovo"
+version = "1.1"
 
 repositories {
     mavenCentral()
 }
 
-ext {
-    junitVersion = "5.9.2"
-}
-
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
-
-tasks.withType(JavaCompile) {
+tasks.compileJava {
     options.encoding = "UTF-8"
 }
+
+tasks.compileTestJava {
+    options.encoding = "UTF-8"
+}
+
+val junitVersion = "5.9.2"
+
 
 dependencies {
     compileOnly("jakarta.platform:jakarta.jakartaee-web-api:10.0.0")
@@ -30,27 +30,23 @@ dependencies {
     implementation("jakarta.data:jakarta.data-api:1.0.1")
 
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
-
-tasks.processResources {
-    dependsOn("copyFrontendToBuild")
+tasks.test {
+    useJUnitPlatform()
 }
 
-tasks.register<Copy>("copyFrontendToBuild"){
+tasks.war {
     dependsOn("npmBuild")
     from("$projectDir/muzika_frontend/dist/")
-    into ("$buildDir/resources/main/static/")
 }
 
-tasks.register<Exec>("npmBuild"){
+
+tasks.register<Exec>("npmBuild") {
     workingDir("$projectDir/muzika_frontend/")
     commandLine("npm.cmd", "run", "build")
 }
 
 
-test {
-    useJUnitPlatform()
-}
