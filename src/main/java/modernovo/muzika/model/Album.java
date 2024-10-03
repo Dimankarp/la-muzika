@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public class Album {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

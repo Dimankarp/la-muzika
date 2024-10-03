@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 public class MusicBand {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
