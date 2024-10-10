@@ -51,5 +51,4 @@ public class MusicBand {
     @JoinColumn(name = "studio_id")
     private Studio studio;
 
-
 }

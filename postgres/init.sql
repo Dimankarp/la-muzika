@@ -1,8 +1,12 @@
 \connect studs
 
 create type public.musicgenre as enum ('ROCK', 'BLUES', 'MATH_ROCK', 'PUNK_ROCK');
-
 alter type public.musicgenre owner to muzika;
+
+
+create type public.roles as enum ('USER', 'ADMIN');
+alter type public.roles owner to muzika;
+
 
 
 create table public.studio
@@ -13,9 +17,9 @@ create table public.studio
     name    varchar(255),
     address text
 );
-
 alter table public.studio
     owner to muzika;
+
 
 create table public.album
 (
@@ -29,9 +33,9 @@ create table public.album
         constraint positive_tracks
             check (tracks > 0)
 );
-
 alter table public.album
     owner to muzika;
+
 
 create table public.coordinates
 (
@@ -44,13 +48,50 @@ create table public.coordinates
         constraint y_bound
             check (y <= (844)::double precision)
 );
-
 alter table public.coordinates
     owner to muzika;
 
+
+create table public."user"
+(
+    id       bigint generated always as identity
+        constraint id
+            primary key,
+    username varchar(255) not null
+        constraint unique_name
+            unique
+        constraint username_not_empty
+            check (length((username)::text) > 0),
+    hash     varchar(48)  not null
+        constraint hash_full_size
+            check (length((hash)::text) = 48)
+);
+
+comment on column public."user".hash is 'SHA384 password hash';
+
+alter table public."user"
+    owner to muzika;
+
+
+
+create table public.role_member
+(
+    member_id bigint not null
+        constraint member_fk
+            references public."user",
+    role      roles  not null,
+    constraint role_member_pk
+        primary key (member_id, role)
+);
+
+alter table public.role_member
+    owner to muzika;
+
+
+
 create table public.music_band
 (
-    id                     bigint generated always as identity,
+    id                     bigint generated always as identity primary key,
     name                   varchar(255)                                       not null
         constraint name_non_empty
             check (length((name)::text) > 0),
@@ -80,7 +121,25 @@ create table public.music_band
             references public.studio
             on update cascade on delete set null
 );
-
 alter table public.music_band
     owner to muzika;
+
+
+create table public.band_owner
+(
+    owner_id bigint not null
+        constraint user_fk
+            references public."user",
+    band_id  bigint not null
+        constraint band_fk
+            references public.music_band,
+    constraint band_owner_pk
+        primary key (band_id, owner_id)
+);
+
+alter table public.band_owner
+    owner to muzika;
+
+
+
 
