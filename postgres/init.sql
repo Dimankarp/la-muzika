@@ -52,7 +52,7 @@ alter table public.coordinates
     owner to muzika;
 
 
-create table public."user"
+create table public.account
 (
     id       bigint generated always as identity
         constraint id
@@ -62,14 +62,14 @@ create table public."user"
             unique
         constraint username_not_empty
             check (length((username)::text) > 0),
-    hash     varchar(48)  not null
+    hash     varchar(96)  not null
         constraint hash_full_size
-            check (length((hash)::text) = 48)
+            check (length((hash)::text) = 96)
 );
 
-comment on column public."user".hash is 'SHA384 password hash';
+comment on column public.account.hash is 'SHA384 password hash in hex';
 
-alter table public."user"
+alter table public.account
     owner to muzika;
 
 
@@ -78,7 +78,7 @@ create table public.role_member
 (
     member_id bigint not null
         constraint member_fk
-            references public."user",
+            references public.account,
     role      roles  not null,
     constraint role_member_pk
         primary key (member_id, role)
@@ -129,7 +129,7 @@ create table public.band_owner
 (
     owner_id bigint not null
         constraint user_fk
-            references public."user",
+            references public.account,
     band_id  bigint not null
         constraint band_fk
             references public.music_band,
