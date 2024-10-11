@@ -111,10 +111,10 @@ function hellos(event){
   fetch("/api/hellos",
     {
       method: "GET",
-      // headers: {
-      //         "username" : username.value,
-      //         "password" : password.value,
-      //       },
+      headers: {
+              "username" : username.value,
+              "password" : password.value,
+            },
       credentials: "same-origin"
     }).then(async (response) => {
       if (response.ok) {
