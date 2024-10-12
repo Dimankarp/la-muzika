@@ -1,13 +1,16 @@
 package modernovo.muzika.security;
 
 
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptor;
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.security.enterprise.AuthenticationStatus;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 
+import jakarta.security.enterprise.authentication.mechanism.http.RememberMe;
 import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
@@ -15,7 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 
-
+@RememberMe(cookieName = "LOGIN_TOKEN", cookieHttpOnly = true, cookieSecureOnly = true)
 @ApplicationScoped
 public class LoginHeadersAuthenticationMechanism implements HttpAuthenticationMechanism {
 
@@ -51,7 +54,7 @@ public class LoginHeadersAuthenticationMechanism implements HttpAuthenticationMe
             return httpMessageContext.responseUnauthorized();
         }
 
-        logger.info("Principal: {} {}", validationResult.getCallerPrincipal().getName(), validationResult.getCallerGroups().stream().reduce((x, y) -> x + " " + y).orElseThrow());
+        logger.info("Principal: {} {}", validationResult.getCallerPrincipal().getName(), validationResult.getCallerGroups().stream().reduce((x, y) -> x + " " + y).orElse("NO_ROLES"));
 
         return httpMessageContext.notifyContainerAboutLogin(validationResult);
 

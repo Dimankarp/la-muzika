@@ -30,18 +30,18 @@ public class UserIdentityStore implements IdentityStore {
 
     public CredentialValidationResult validate(UsernamePasswordCredential credential) {
         try {
-            logger.info("Got user credential {}",credential.getCaller());
+            logger.info("Got user credential {}", credential.getCaller());
             if (userRepo.userExist(credential.getCaller())) {
 
                 var user = userRepo.findUserByName(credential.getCaller());
                 String userHash = secRepo.getUserHash(user.getId());
                 String passHash = PasswordEncoder.encodeSHA384(credential.getPasswordAsString());
 
-                logger.info("HashComparing {} | {}",userHash, passHash);
+                logger.info("HashComparing {} | {}", userHash, passHash);
 
                 if (userHash.equals(passHash)) {
                     List<Role> roles = secRepo.getUserRoles(user.getId());
-                    return new CredentialValidationResult(credential.getCaller(), Set.of("user"));//roles.stream().map(Enum::name).collect(Collectors.toSet()));
+                    return new CredentialValidationResult(credential.getCaller(), roles.stream().map(Enum::name).collect(Collectors.toSet()));
                 } else {
                     return CredentialValidationResult.INVALID_RESULT;
                 }

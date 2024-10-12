@@ -6,7 +6,7 @@ import jakarta.security.enterprise.SecurityContext;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import modernovo.muzika.model.Studio;
+import modernovo.muzika.model.Role;
 import modernovo.muzika.model.User;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.SecurityRepository;
@@ -58,6 +58,7 @@ public class HelloResource {
             }
             User newUser = new User(username, PasswordEncoder.encodeSHA384(password));
             userRepo.registerUser(newUser);
+            secRepo.addRole(newUser.getId(), Role.USER.name());
             return Response.ok()
                     .entity("Success")
                     .header("Access-Control-Allow-Origin", "*")

@@ -32,9 +32,10 @@ dependencies {
 
     providedCompile("org.slf4j:slf4j-api:2.0.13")
 
-
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+
+
 }
 
 tasks.test {

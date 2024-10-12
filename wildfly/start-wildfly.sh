@@ -40,6 +40,13 @@ data-source add \
   --flush-strategy=IdleConnections \
   --min-pool-size=10 --max-pool-size=100  --pool-prefill=false
 
+
+# Disable 'integrated-jaspi' as the quickstart will be managing it's own identities
+/subsystem=undertow/application-security-domain=other:write-attribute(name=integrated-jaspi, value=false)
+
+# Reload the server configuration
+#reload
+
 # Execute the batch
 run-batch
 EOF
