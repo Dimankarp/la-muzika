@@ -15,7 +15,7 @@ public class MusicBand {
 
     private String name;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "coordinates_id")
     private Coordinates coordinates;
 
@@ -36,7 +36,7 @@ public class MusicBand {
 
     private String description;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "best_album_id")
     private Album bestAlbum;
     @Column(name = "albums_count")
@@ -46,7 +46,7 @@ public class MusicBand {
     @Column(name = "establishment_date")
     private ZonedDateTime establishmentDate;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "studio_id")
     private Studio studio;
 
