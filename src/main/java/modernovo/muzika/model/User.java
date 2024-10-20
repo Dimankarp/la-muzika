@@ -1,8 +1,7 @@
 package modernovo.muzika.model;
 
 import jakarta.persistence.*;
-import modernovo.muzika.security.PasswordEncoder;
-import org.hibernate.annotations.ColumnTransformer;
+import modernovo.muzika.security.SHA384PasswordEncoder;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -18,9 +17,9 @@ public class User {
 
     }
 
-    public User(String username, String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public User(String username, String password) {
         this.username = username;
-        this.passwordHash = PasswordEncoder.encodeSHA384(password);
+        this.passwordHash = SHA384PasswordEncoder.encodeSHA384(password);
     }
 
     @Id
@@ -31,8 +30,12 @@ public class User {
         return id;
     }
 
+
     private String username;
 
+    public String getUsername() {
+        return username;
+    }
 
     @Column(name = "hash")
     private String passwordHash;
@@ -41,11 +44,8 @@ public class User {
         return passwordHash;
     }
 
-    @JoinTable(
-            name = "role_member",
-            joinColumns = @JoinColumn(name = "member_id")
-    )
-    @OneToMany
+
+    @OneToMany(mappedBy = "user")
     private List<RoleMember> roles = new ArrayList<>();
 
     public List<Role> getRoles() {

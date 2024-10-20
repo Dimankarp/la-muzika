@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import modernovo.muzika.model.UserDTO;
 import modernovo.muzika.repositories.UserRepository;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,10 +26,12 @@ public class UserResource {
     @GetMapping(value = "/{username}")
     public UserDTO getUser(@PathVariable String username, HttpServletResponse response) {
 
-//        Principal principal = secCtx.getCallerPrincipal();
-//        if (!secCtx.isCallerInRole(Role.ADMIN.name()) && !Objects.equals(username, principal.getName()) || principal == null) {
-//            return Response.status(Response.Status.UNAUTHORIZED.getStatusCode(), "Requested user doesn't correspond to the credentials").build();
-//        }
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (!auth.getName().equals(username) && !auth.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        }
 
         Optional<UserDTO> dto = userRepo.findUserDTOByName(username);
         if (dto.isPresent()) {

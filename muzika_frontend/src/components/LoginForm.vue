@@ -50,10 +50,10 @@ function login(event) {
   formInProgress.value = true;
 
   let urlEncoded = new URLSearchParams();
-  urlEncoded.append("Auth-Username", username.value);
-  urlEncoded.append("Auth-Password", password.value);
+  urlEncoded.append("username", username.value);
+  urlEncoded.append("password", password.value);
 
-  fetch("/api/auth/token",
+  fetch("/api/auth/login",
     {
       method: "POST",
       body: urlEncoded,

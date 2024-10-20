@@ -38,7 +38,7 @@ tasks.processResources {
 tasks.register<Copy>("copyFrontendToBuild"){
 	dependsOn("npmBuild")
 	from("$projectDir/muzika_frontend/dist/")
-	into ("$projectDir/src/main/resources/templates/")
+	into ("$projectDir/src/main/resources/static/")
 }
 
 tasks.register<Exec>("npmBuild"){
