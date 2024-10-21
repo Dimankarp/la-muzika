@@ -33,6 +33,12 @@ public class User {
     @OneToMany(mappedBy = "owner")
     private List<MusicBand> musicBands = new ArrayList<>();
 
+    @OneToMany(mappedBy = "owner")
+    private List<Album> albums = new ArrayList<>();
+
+    @OneToMany(mappedBy = "owner")
+    private List<Studio> studios = new ArrayList<>();
+
     public User() {
 
     }
@@ -59,5 +65,11 @@ public class User {
         return musicBands;
     }
 
+    public List<Album> getAlbums() {
+        return albums;
+    }
 
+    public List<Studio> getStudios() {
+        return studios;
+    }
 }

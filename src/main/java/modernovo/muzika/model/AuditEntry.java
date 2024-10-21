@@ -6,11 +6,11 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "audit", schema = "public")
-public class Audit {
+public class AuditEntry {
 
-    public Audit(){}
+    public AuditEntry(){}
 
-    public Audit(User user, MusicBand target, ActionType action) {
+    public AuditEntry(User user, MusicBand target, ActionType action) {
         this.user = user;
         this.target = target;
         this.action = action;
