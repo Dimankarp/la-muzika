@@ -3,8 +3,7 @@ package modernovo.muzika.model;
 
 import jakarta.persistence.*;
 
-@Entity
-@Table(name = "coordinates", schema = "public")
+@Embeddable
 public class Coordinates {
     protected Coordinates() {
 
@@ -15,21 +14,14 @@ public class Coordinates {
         this.y = y;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    public Long getId() {
-        return id;
-    }
-
     private Float x;
+
+
+    private Float y;
 
     public Float getX() {
         return x;
     }
-
-    private Float y;
 
     public Float getY() {
         return y;

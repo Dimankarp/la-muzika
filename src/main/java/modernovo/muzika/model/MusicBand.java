@@ -15,8 +15,7 @@ public class MusicBand {
 
     private String name;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "coordinates_id")
+    @Embedded
     private Coordinates coordinates;
 
 
@@ -49,5 +48,13 @@ public class MusicBand {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "studio_id")
     private Studio studio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    @Column(name = "admin_open")
+    private Boolean adminOpen;
+
 
 }

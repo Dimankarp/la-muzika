@@ -1,48 +1,5 @@
 \connect studs
 
-create table public.studio
-(
-    id      bigint generated always as identity
-        constraint studio_pk
-            primary key,
-    name    varchar(255),
-    address text
-);
-alter table public.studio
-    owner to muzika;
-
-
-create table public.album
-(
-    id     bigint generated always as identity
-        constraint album_pk
-            primary key,
-    name   varchar(255) not null
-        constraint non_empty
-            check (length((name)::text) > 0),
-    tracks integer
-        constraint positive_tracks
-            check (tracks > 0)
-);
-alter table public.album
-    owner to muzika;
-
-
-create table public.coordinates
-(
-    id bigint generated always as identity
-        primary key,
-    x  double precision not null
-        constraint x_bound
-            check (x <= (540):: double precision
-                ),
-    y  double precision not null
-        constraint y_bound
-            check (y <= (844)::double precision)
-);
-alter table public.coordinates
-    owner to muzika;
-
 
 create table public.account
 (
@@ -66,12 +23,47 @@ comment
 alter table public.account
     owner to muzika;
 
+
+
+create table public.studio
+(
+    id       bigint generated always as identity
+        constraint studio_pk
+            primary key,
+    name     varchar(255),
+    address  text,
+    owner_id bigint references public.account
+        on update cascade on delete cascade not null
+);
+alter table public.studio
+    owner to muzika;
+
+
+create table public.album
+(
+    id       bigint generated always as identity
+        constraint album_pk
+            primary key,
+    name     varchar(255)                   not null
+        constraint non_empty
+            check (length((name)::text) > 0),
+    tracks   integer
+        constraint positive_tracks
+            check (tracks > 0),
+    owner_id bigint references public.account
+        on update cascade on delete cascade not null
+);
+alter table public.album
+    owner to muzika;
+
+
 create table public.role_member
 (
     id        bigint generated always as identity primary key,
     member_id bigint      not null
         constraint member_fk
-            references public.account,
+            references public.account
+            on update cascade on delete cascade,
     role      varchar(50) not null,
     unique (member_id, role)
 );
@@ -80,17 +72,19 @@ alter table public.role_member
     owner to muzika;
 
 
-
 create table public.music_band
 (
     id                     bigint generated always as identity primary key,
     name                   varchar(255)                                       not null
         constraint name_non_empty
             check (length((name)::text) > 0),
-    coordinates_id         bigint                                             not null
-        constraint coords_fk
-            references public.coordinates
-            on update cascade on delete set null,
+    x                      double precision                                   not null
+        constraint x_bound
+            check (x <= (540):: double precision
+                ),
+    y                      double precision                                   not null
+        constraint y_bound
+            check (y <= (844)::double precision),
     creation_date          timestamp with time zone default CURRENT_TIMESTAMP not null,
     genre                  VARCHAR(50)                                        not null
         constraint non_empty_genre
@@ -113,26 +107,45 @@ create table public.music_band
     studio_id              bigint
         constraint studio_fk
             references public.studio
-            on update cascade on delete set null
+            on update cascade on delete set null,
+    admin_open             bool                     default false             not null,
+    owner_id               bigint references public.account
+        on update cascade on delete cascade                                   not null
 );
 alter table public.music_band
     owner to muzika;
 
 
-create table public.band_owner
+create table public.audit
 (
-    owner_id bigint not null
-        constraint user_fk
-            references public.account,
-    band_id  bigint not null
-        constraint band_fk
-            references public.music_band,
-    constraint band_owner_pk
-        primary key (band_id, owner_id)
+    id            bigint generated always as identity primary key,
+    creation_date timestamp with time zone default CURRENT_TIMESTAMP not null,
+    creator_id    bigint                                             references public.account
+                                                                         on update cascade on delete set null,
+    action_type   varchar(255)                                       not null
+        constraint action_type_non_empty
+            check (length((action_type)::text) > 0),
+    target_id     bigint references public.music_band
+        on update cascade on delete cascade                          not null
 );
 
-alter table public.band_owner
+alter table public.audit
     owner to muzika;
+
+
+create table public.admin_requests
+(
+    id            bigint generated always as identity primary key,
+    creation_date timestamp with time zone default CURRENT_TIMESTAMP not null,
+    user_id       bigint                                             references public.account
+                                                                         on update cascade on delete set null
+);
+
+alter table public.audit
+    owner to muzika;
+
+
+
 
 
 

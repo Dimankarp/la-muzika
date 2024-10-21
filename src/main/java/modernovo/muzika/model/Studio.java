@@ -6,6 +6,24 @@ import jakarta.persistence.*;
 @Table(name = "studio", schema = "public")
 public class Studio {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+
+    private String name;
+
+
+    private String address;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "owner_id"
+    )
+    private User owner;
+
+
     protected Studio() {
 
     }
@@ -15,25 +33,16 @@ public class Studio {
         this.address = address;
     }
 
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     public Long getId() {
         return id;
     }
 
-    private String name;
+    public String getAddress() {
+        return address;
+    }
 
     public String getName() {
         return name;
-    }
-
-    private String address;
-
-    public String getAddress() {
-        return address;
     }
 
 

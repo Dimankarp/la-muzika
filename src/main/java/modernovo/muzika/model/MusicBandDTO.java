@@ -12,11 +12,12 @@ public class MusicBandDTO {
     private Integer numberOfParticipants;
     private Integer singlesCount;
     private String description;
-    private String besalbumName;
-    private Integer bestAlbumTracks;
     private Long albumsCount;
     private ZonedDateTime establishmentDate;
-    private String studioName;
+    private Long ownerId;
+    private Boolean adminOpen;
+    private Album bestAlbum;
+    private Studio studio;
 
     public String getName() {
         return name;
@@ -82,21 +83,6 @@ public class MusicBandDTO {
         this.description = description;
     }
 
-    public String getBesalbumName() {
-        return besalbumName;
-    }
-
-    public void setBesalbumName(String besalbumName) {
-        this.besalbumName = besalbumName;
-    }
-
-    public Integer getBestAlbumTracks() {
-        return bestAlbumTracks;
-    }
-
-    public void setBestAlbumTracks(Integer bestAlbumTracks) {
-        this.bestAlbumTracks = bestAlbumTracks;
-    }
 
     public Long getAlbumsCount() {
         return albumsCount;
@@ -114,22 +100,35 @@ public class MusicBandDTO {
         this.establishmentDate = establishmentDate;
     }
 
-    public String getStudioName() {
-        return studioName;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setStudioName(String studioName) {
-        this.studioName = studioName;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
-    public String getStudioAddress() {
-        return studioAddress;
+    public Boolean getAdminOpen() {
+        return adminOpen;
     }
 
-    public void setStudioAddress(String studioAddress) {
-        this.studioAddress = studioAddress;
+    public void setAdminOpen(Boolean adminOpen) {
+        this.adminOpen = adminOpen;
     }
 
-    private String studioAddress;
+    public Album getBestAlbum() {
+        return bestAlbum;
+    }
 
+    public void setBestAlbum(Album bestAlbum) {
+        this.bestAlbum = bestAlbum;
+    }
+
+    public Studio getStudio() {
+        return studio;
+    }
+
+    public void setStudio(Studio studio) {
+        this.studio = studio;
+    }
 }
