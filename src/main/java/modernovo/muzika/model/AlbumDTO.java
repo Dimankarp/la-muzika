@@ -1,24 +1,14 @@
 package modernovo.muzika.model;
 
-import jakarta.persistence.*;
+public class AlbumDTO {
 
-@Entity
-@Table(name = "album", schema = "public")
-public class Album {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
     private Integer tracks;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "owner_id"
-    )
-    private User owner;
+    private Long ownerID;
 
     public Long getId() {
         return id;
@@ -44,11 +34,11 @@ public class Album {
         this.tracks = tracks;
     }
 
-    public User getOwner() {
-        return owner;
+    public Long getOwnerID() {
+        return ownerID;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setOwnerID(Long owner_id) {
+        this.ownerID = owner_id;
     }
 }

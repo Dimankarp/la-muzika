@@ -27,16 +27,16 @@ public class User {
         return passwordHash;
     }
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<RoleMember> roles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private List<MusicBand> musicBands = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private List<Album> albums = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private List<Studio> studios = new ArrayList<>();
 
     public User() {

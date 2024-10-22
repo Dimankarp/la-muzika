@@ -92,6 +92,24 @@ function validateForm() {
   return result
 }
 
+async function fetchBands(){
+  let urlEncoded = new URLSearchParams();
+  urlEncoded.append("owner", "Vovka");
+  let response = await fetch(`/api/bands?` + urlEncoded.toString(),
+      {
+        method: "GET",
+        credentials: "same-origin"
+      })
+
+    if (response.ok) {
+      let shotObj = await response.json();
+      console.log(shotObj)
+
+    } else{
+      console.log(response)
+    }
+}
+
 /*
 Returns true if token refreshment required.
 */
@@ -186,5 +204,6 @@ watch(y, () => {
       <button @click.prevent="postShot">{{ submitButtonText }}</button>
     </form>
     <button @click.prevent="logout">Logout</button>
+    <button @click.prevent="fetchBands">Test</button>
   </div>
 </template>

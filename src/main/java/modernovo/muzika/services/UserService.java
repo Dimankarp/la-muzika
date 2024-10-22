@@ -21,9 +21,14 @@ public class UserService {
     }
 
     @Transactional
-    public User registerUser(String username, String password) throws UnsupportedEncodingException, NoSuchAlgorithmException, DataAccessException {
+    public User registerUser(String username, String password) throws DataAccessException {
             var user = userRepo.save(new User(username, password));
             userRepo.addRole(user, Role.USER);
             return user;
     }
+
+    public boolean hasAdminRights(User user) {
+        return user.getRoles().contains(Role.ADMIN);
+    }
+
 }

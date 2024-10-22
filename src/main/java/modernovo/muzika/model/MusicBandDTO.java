@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 
 public class MusicBandDTO {
 
+    private Long id;
     private String name;
     private Float coordX;
     private Float coordY;
@@ -15,9 +16,12 @@ public class MusicBandDTO {
     private Long albumsCount;
     private ZonedDateTime establishmentDate;
     private Long ownerId;
+    private String ownerName;
     private Boolean adminOpen;
-    private Album bestAlbum;
-    private Studio studio;
+    private AlbumDTO bestAlbum;
+    private Long bestAlbumId;
+    private StudioDTO studio;
+    private Long studioId;
 
     public String getName() {
         return name;
@@ -116,19 +120,53 @@ public class MusicBandDTO {
         this.adminOpen = adminOpen;
     }
 
-    public Album getBestAlbum() {
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public AlbumDTO getBestAlbum() {
         return bestAlbum;
     }
 
-    public void setBestAlbum(Album bestAlbum) {
+    public void setBestAlbum(AlbumDTO bestAlbum) {
         this.bestAlbum = bestAlbum;
     }
 
-    public Studio getStudio() {
+    public StudioDTO getStudio() {
         return studio;
     }
 
-    public void setStudio(Studio studio) {
+    public void setStudio(StudioDTO studio) {
         this.studio = studio;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getBestAlbumId() {
+        return bestAlbumId;
+    }
+
+    public void setBestAlbumId(Long bestAlbumId) {
+        this.bestAlbumId = bestAlbumId;
+    }
+
+    public Long getStudioId() {
+        return studioId;
+    }
+
+    public void setStudioId(Long studioId) {
+        this.studioId = studioId;
+    }
 }
+

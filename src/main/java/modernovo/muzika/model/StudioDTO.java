@@ -1,32 +1,18 @@
 package modernovo.muzika.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
-@Entity
-@Table(name = "studio", schema = "public")
-public class Studio {
+public class StudioDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     private String name;
 
-
     private String address;
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "owner_id"
-    )
-    private User owner;
-
-
-    protected Studio() {
-
-    }
+    private Long ownerID;
 
     public Long getId() {
         return id;
@@ -52,11 +38,11 @@ public class Studio {
         this.address = address;
     }
 
-    public User getOwner() {
-        return owner;
+    public Long getOwnerID() {
+        return ownerID;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setOwnerID(Long ownerID) {
+        this.ownerID = ownerID;
     }
 }
