@@ -5,16 +5,19 @@ import jakarta.transaction.Transactional;
 import modernovo.muzika.model.MusicBandDTO;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.UserRepository;
+import modernovo.muzika.security.UserDetailsServiceImpl;
 import modernovo.muzika.services.BandService;
-import modernovo.muzika.services.DTOCreatorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController()
 @RequestMapping("/api/bands")
 public class MusicBandResource {
 
+    private final Logger logger = LoggerFactory.getLogger(MusicBandResource.class);
     private final UserRepository userRepository;
     private final BandService bandService;
     private final BandRepository bandRepository;
@@ -34,9 +37,9 @@ public class MusicBandResource {
 
     @GetMapping(value = "")
     @Transactional
-    public List<MusicBandDTO> getBands(@RequestParam(required = false) String owner, HttpServletResponse response) {
+    public Page<MusicBandDTO> getBands(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
         if(owner != null){
-            var bandsOpt =  bandService.getBandDTObyUsername(owner);
+            var bandsOpt =  bandService.getBandsDTObyUsername(owner, p);
             if(bandsOpt.isEmpty()){
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return null;
@@ -44,7 +47,9 @@ public class MusicBandResource {
                 return bandsOpt.get();
             }
         }
-        return bandService.getBandDTO();
+        logger.debug("Request to get all bands without owner");
+        return bandService.getBandsDTO(p);
+
     }
 
 

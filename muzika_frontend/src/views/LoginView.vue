@@ -3,15 +3,14 @@ import LoginForm from '@/components/LoginForm.vue';
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
-function redirectToShotPage() {
-  console.log("Redirecting to shopt page!")
-  router.push("/shot")
+function redirectToTablePage() {
+  router.push({name: 'table'})
 }
 
 </script>
 
 <template>
-  <LoginForm @login-success="redirectToShotPage" />
+  <LoginForm @login-success="redirectToTablePage" />
   <router-link to="/register" class="register-link">
     or register new account! </router-link>
 </template>

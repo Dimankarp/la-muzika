@@ -3,8 +3,7 @@ import '@/scss/vue-inputs.scss'
 import '@/scss/login.scss'
 
 import { ref } from "vue";
-import { usernameIsValid, passwordIsValid, passwordsMatch } from "#/js/input_validation.js"
-import {registerToken} from "#/js/auth.js"
+import { usernameIsValid, passwordIsValid, passwordsMatch } from "@/js/input_validation.js"
 
 const emit = defineEmits(['registrationSuccess'])
 

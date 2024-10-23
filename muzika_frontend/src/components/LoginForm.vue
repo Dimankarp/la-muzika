@@ -3,8 +3,8 @@ import '@/scss/vue-inputs.scss'
 import '@/scss/login.scss'
 
 import { ref } from "vue";
-import {usernameIsValid, passwordIsValid} from "#/js/input_validation.js"
-import { registerToken } from '#/js/auth.js';
+import {usernameIsValid, passwordIsValid} from "@/js/input_validation.js"
+import { updateUser } from '@/js/auth';
 
 const emit = defineEmits(['loginSuccess'])
 
@@ -60,8 +60,7 @@ function login(event) {
       credentials: "same-origin"
     }).then(async (response) => {
       if (response.ok) {
-        let token = await response.text()
-        registerToken(token, username.value)
+        updateUser(username.value)
         emit("loginSuccess")
       }
       else if (response.status === 409) {

@@ -37,7 +37,7 @@ export function radiusIsValid(input) {
 
 export function usernameIsValid(username) {
     let usernameStr = String(username);
-    if (usernameStr.length > 0 && usernameStr.length <= 35 && /^[\x00-\x7F]*$/.test(usernameStr)) return true; //The regex is tests for ASCII-only.
+    if (usernameStr.length > 0 && usernameStr.length <= 35 && /^[\x00-\x7F]*$/.test(usernameStr)) return true; //The regex tests for ASCII-only.
     else return false;
 }
 

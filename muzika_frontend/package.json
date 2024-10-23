@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "color-hash": "^2.0.2",
     "vue": "^3.5.10",
+    "vue-konva": "^3.1.2",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {

@@ -1,21 +1,38 @@
 <script setup>
-import {RouterLink, RouterView, useRoute} from 'vue-router'
-import ToRangeButton from "@/components/ToRangeButton.vue";
-import {computed, onBeforeMount} from "vue";
-import RegisterForm from '@/components/RegisterForm.vue';
-import { onStartupAuthorizationCycle } from '#/js/auth';
+import { RouterView, useRoute, useRouter } from 'vue-router'
+import { computed, onBeforeMount, watch } from "vue";
+import TopMenu from '@/components/TopMenu.vue';
+import { userStore } from '@/js/store';
+import { tryLogin } from '@/js/auth';
 
 const route = useRoute()
-const isLogin = computed(() => route.name==="login")
+const isLoginOrRegister = computed(() => route.name === "login" || route.name === "register")
 
-onBeforeMount(()=>{
-  if(!isLogin)
-  onStartupAuthorizationCycle()
+const router = useRouter()
+
+
+watch(userStore, (newLoggedIn) => {
+  console.log(newLoggedIn)
+  if (!newLoggedIn) {
+    router.replace({name:"login"});
+  }
+})
+
+
+
+onBeforeMount(() => {
+  if(!userStore.isLoggedIn){
+    if (!tryLogin()){
+      logout()
+      router.replace({name:"login"});
+    }
+  }
 })
 
 </script>
 
 <template>
+  <TopMenu v-if="!isLoginOrRegister" />
   <router-view>
   </router-view>
 </template>

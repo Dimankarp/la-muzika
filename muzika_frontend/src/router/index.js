@@ -1,42 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
-import ShotView from '@/views/ShotView.vue'
-import { isLoggedIn } from '#/js/auth'
+import RegisterView from '@/views/RegisterView.vue'
+import TableView from '@/views/TableView.vue'
+import { userStore } from '@/js/store'
+const routes = [
+  {
+    path: '/',
+    name: 'login',
+    component: LoginView
+
+  },
+  {
+    path: '/table',
+    name: 'table',
+    component: TableView,
+    props: { entryType: 'bands' }
+  },
+
+  {
+    path: '/register',
+    name: 'register',
+    component: RegisterView
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: LoginView
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'login',
-      component: LoginView
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: () => import('@/views/RegisterView.vue')
-    },
-    {
-      path: '/shot',
-      name: 'shot',
-      component: ShotView
-    },
-    {
-      path :'/:pathMatch(.*)*',
-      name: 'not-found',
-      component: LoginView
-    }
-  ]
+  routes
 })
 
-router.beforeEach((to, from) =>{
-  if(to.name === "shot"){
-    if(!isLoggedIn())return { name: 'login' };
-    else return true;
-  }
-  else{
-    return true;
-  }
+router.beforeEach((to) => {
+  
 })
 
 export default router
