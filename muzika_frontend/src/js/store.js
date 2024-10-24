@@ -1,21 +1,20 @@
 import { reactive } from "vue"
-
+import { fetchUser } from "@/js/auth";
 export const userStore = reactive({
-    isLoggedIn: false,
+    isLoggedIn: true, //Warining! Important for refresh
     userId: 0,
-    userName: "",
+    username: "",
     isAdmin: false,
-    setLogOut(){
+    logout(){
         this.isLoggedIn = false;
-    },
-    setName(username){
-        this.userName = username;
+        this.userId =  0;
+        this.username = "";
+        this.isAdmin = false;
     },
     login(dto){
         this.isLoggedIn = true;
         this.userId = dto.id
-        this.userName = dto.username
-        this.isAdmin = dto.isAdmin
-        window.localStorage.setItem("username", dto.username)
-    }
+        this.username = dto.username
+        this.isAdmin = dto.admin
+         }
 })

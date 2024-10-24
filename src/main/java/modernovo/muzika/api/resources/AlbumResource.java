@@ -2,10 +2,11 @@ package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import modernovo.muzika.model.AlbumDTO;
 import modernovo.muzika.model.MusicBandDTO;
+import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.UserRepository;
-import modernovo.muzika.security.UserDetailsServiceImpl;
 import modernovo.muzika.services.BandService;
 import modernovo.muzika.services.DTOConstraintViolationException;
 import modernovo.muzika.services.EntityCreatorService;
@@ -20,25 +21,27 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController()
 @RequestMapping("/api/bands")
-public class MusicBandResource {
+public class AlbumResource {
 
-    private final Logger logger = LoggerFactory.getLogger(MusicBandResource.class);
+    private final Logger logger = LoggerFactory.getLogger(AlbumResource.class);
     private final EntityCreatorService entityCreatorService;
     private final UserRepository userRepository;
     private final BandService bandService;
     private final BandRepository bandRepository;
     private final UserService userService;
+    private final AlbumRepository albumRepository;
 
-    MusicBandResource(final UserRepository userRepository, final BandService bandService, BandRepository bandRepository, EntityCreatorService entityCreatorService, UserService userService) {
+    AlbumResource(final UserRepository userRepository, final BandService bandService, BandRepository bandRepository, EntityCreatorService entityCreatorService, UserService userService, AlbumRepository albumRepository) {
         this.userRepository = userRepository;
         this.bandService = bandService;
         this.bandRepository = bandRepository;
         this.entityCreatorService = entityCreatorService;
         this.userService = userService;
+        this.albumRepository = albumRepository;
     }
 
     @PostMapping(value = "")
-    public String postBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) {
+    public String postAlbum(@RequestBody AlbumDTO dto, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var userOpt = userRepository.findByUsername(auth.getName());
         if(userOpt.isEmpty()) {
@@ -48,7 +51,7 @@ public class MusicBandResource {
         var owner = userOpt.get();
         try {
             var band = entityCreatorService.fromDTONew(dto, owner);
-            bandRepository.save(band);
+            albumRepository.save(band);
 
         } catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -58,7 +61,7 @@ public class MusicBandResource {
     }
 
     @PutMapping(value = "")
-    public String putBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) {
+    public String putAlbum(@RequestBody AlbumDTO dto, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var userOpt = userRepository.findByUsername(auth.getName());
         if(userOpt.isEmpty()) {
@@ -67,13 +70,8 @@ public class MusicBandResource {
         }
         var caller = userOpt.get();
         try {
-            if (userService.hasAdminRights(caller)) {
-                var band = entityCreatorService.fromDTOAdminUpdate(dto, caller);
-                bandRepository.save(band);
-            } else{
-                var band = entityCreatorService.fromDTORegularUpdate(dto, caller);
-                bandRepository.save(band);
-            }
+                var band = entityCreatorService.fromDTOUpdate(dto, caller);
+                albumRepository.save(band);
         }
         catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -86,9 +84,9 @@ public class MusicBandResource {
 
     @GetMapping(value = "")
     @Transactional
-    public Page<MusicBandDTO> getBands(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
+    public Page<MusicBandDTO> getAlbums(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
         if(owner != null){
-            var bandsOpt =  bandService.getBandsDTObyUsername(owner, p);
+            var bandsOpt =  bandService.getAlbumsDTO(p);
             if(bandsOpt.isEmpty()){
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return null;

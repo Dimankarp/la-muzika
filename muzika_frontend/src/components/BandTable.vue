@@ -1,7 +1,7 @@
 <script setup>
 import TableHead from './TableHead.vue';
 
-const emit = defineEmits(['selectedEntry'])
+const emit = defineEmits(['entrySelected'])
 const {bands, sortInfoRef} = defineProps(["bands", "deleteAllowed", "selectAllowed", "sortInfoRef"])
 
 </script>
@@ -53,7 +53,7 @@ button {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="band in bands" :key="band.id">
+            <tr v-for="band in bands" :key="band.id" @click.prevent="emit('entrySelected', band)">
                 <td>{{ band.name }}</td>
                 <td>{{ band.coordX }}</td>
                 <td>{{ band.coordY }}</td>

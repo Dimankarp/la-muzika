@@ -6,13 +6,13 @@ const router = useRouter()
 
 function redirectToShotPage(){
     console.log("Redirecting to shopt page!")
-    router.push("/shot")
+    router.push("table")
 }
 
 </script>
 
 <template>
   <RegisterForm @registration-success="redirectToShotPage"/>
-  <router-link to="/login" class="login-link">
+  <router-link to="login" class="login-link">
     or login! </router-link>
 </template>

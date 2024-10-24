@@ -1,10 +1,9 @@
 package modernovo.muzika.services;
 
-import modernovo.muzika.model.Coordinates;
-import modernovo.muzika.model.MusicBand;
-import modernovo.muzika.model.MusicBandDTO;
-import modernovo.muzika.model.User;
+import modernovo.muzika.model.*;
+import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.BandRepository;
+import modernovo.muzika.repositories.StudioRepository;
 import modernovo.muzika.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,11 +16,15 @@ public class EntityCreatorService {
     private final BandRepository bandRepository;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final AlbumRepository albumRepository;
+    private final StudioRepository studioRepository;
 
-    public EntityCreatorService(BandRepository bandRepository, UserService userService, UserRepository userRepository) {
+    public EntityCreatorService(BandRepository bandRepository, UserService userService, UserRepository userRepository, AlbumRepository albumRepository, StudioRepository studioRepository) {
         this.bandRepository = bandRepository;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.albumRepository = albumRepository;
+        this.studioRepository = studioRepository;
     }
 
     @Transactional
@@ -30,7 +33,7 @@ public class EntityCreatorService {
         var newEntity = fromDTOGeneral(dto);
         newEntity.setOwner(owner);
         if (dto.getBestAlbumId() != null) {
-            var album = bandRepository.findAlbumById(dto.getBestAlbumId());
+            var album = albumRepository.findById(dto.getBestAlbumId());
             if (album.isPresent())
                 if (Objects.equals(album.get().getOwner().getId(), owner.getId())) {
                     newEntity.setBestAlbum(album.get());
@@ -43,7 +46,7 @@ public class EntityCreatorService {
         }
 
         if (dto.getStudioId() != null) {
-            var studio = bandRepository.findStudiobyId(dto.getStudioId());
+            var studio = studioRepository.findById(dto.getStudioId());
             if (studio.isPresent())
                 if (Objects.equals(studio.get().getOwner().getId(), owner.getId())) {
                     newEntity.setStudio(studio.get());
@@ -54,9 +57,87 @@ public class EntityCreatorService {
                 throw new DTOConstraintViolationException("Provided Studio doesn't exist");
             }
         }
-    return newEntity;
+        return newEntity;
 
     }
+
+
+    @Transactional
+    public Album fromDTONew(AlbumDTO dto, User owner) throws DTOConstraintViolationException {
+        if (dto == null) throw new DTOConstraintViolationException("Album DTO is Null");
+        var newEntity = fromDTOGeneral(dto);
+        newEntity.setOwner(owner);
+        return newEntity;
+
+    }
+
+    @Transactional
+    public Album fromDTOUpdate(AlbumDTO dto, User caller) throws DTOConstraintViolationException {
+        if (dto == null) throw new DTOConstraintViolationException("Album DTO is Null");
+        if (dto.getId() == null) throw new DTOConstraintViolationException("FromDTOUpdate is called with null album id");
+        if (dto.getOwnerID() == null)
+            throw new DTOConstraintViolationException("Music band DTO must have an owner id");
+
+        var entityOpt = albumRepository.findById(dto.getId());
+        if (entityOpt.isEmpty()) {
+            throw new DTOConstraintViolationException("FromDTOUpdate is called with non existing album");
+        }
+
+        var persistedEntity = entityOpt.get();
+
+        if (!persistedEntity.getOwner().getId().equals(caller.getId())) {
+            throw new DTOConstraintViolationException("FromDTOUpdate is called for DTO owned by different owner");
+        }
+
+        if (!Objects.equals(dto.getOwnerID(), caller.getId())) {
+            throw new DTOConstraintViolationException("From DTO for regular update is called by a non-owner of DTO");
+        }
+
+        var updatingEntity = fromDTOGeneral(dto);
+        updatingEntity.setOwner(caller);
+        return updatingEntity;
+
+    }
+
+
+    @Transactional
+    public Studio fromDTONew(StudioDTO dto, User owner) throws DTOConstraintViolationException {
+        if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
+        var newEntity = fromDTOGeneral(dto);
+        newEntity.setOwner(owner);
+        return newEntity;
+
+    }
+
+    @Transactional
+    public Studio fromDTOUpdate(StudioDTO dto, User caller) throws DTOConstraintViolationException {
+        if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
+        if (dto.getId() == null) throw new DTOConstraintViolationException("FromDTOUpdate is called with null studio id");
+        if (dto.getOwnerID() == null)
+            throw new DTOConstraintViolationException("Music band DTO must have an owner id");
+
+        var entityOpt = studioRepository.findById(dto.getId());
+        if (entityOpt.isEmpty()) {
+            throw new DTOConstraintViolationException("FromDTOUpdate is called with non existing studio");
+        }
+
+        var persistedEntity = entityOpt.get();
+
+        if (!persistedEntity.getOwner().getId().equals(caller.getId())) {
+            throw new DTOConstraintViolationException("FromDTOUpdate is called for DTO owned by different owner");
+        }
+
+        if (!Objects.equals(dto.getOwnerID(), caller.getId())) {
+            throw new DTOConstraintViolationException("From DTO for regular update is called by a non-owner of DTO");
+        }
+
+        var updatingEntity = fromDTOGeneral(dto);
+        updatingEntity.setOwner(caller);
+        return updatingEntity;
+
+    }
+
+
 
     @Transactional
     public MusicBand fromDTOAdminUpdate(MusicBandDTO dto, User caller) throws DTOConstraintViolationException {
@@ -81,7 +162,7 @@ public class EntityCreatorService {
         updatingEntity.setOwner(entity.getOwner());
 
         if (dto.getBestAlbumId() != null) {
-            var album = bandRepository.findAlbumById(dto.getBestAlbumId());
+            var album = albumRepository.findById(dto.getBestAlbumId());
             if (album.isPresent())
                 if (Objects.equals(album.get().getOwner().getId(), caller.getId()) || Objects.equals(album.get().getOwner().getId(), dto.getOwnerId())) {
                     updatingEntity.setBestAlbum(album.get());
@@ -94,7 +175,7 @@ public class EntityCreatorService {
         }
 
         if (dto.getStudioId() != null) {
-            var studio = bandRepository.findStudiobyId(dto.getStudioId());
+            var studio = studioRepository.findById(dto.getStudioId());
             if (studio.isPresent())
                 if (Objects.equals(studio.get().getOwner().getId(), caller.getId()) || Objects.equals(studio.get().getOwner().getId(), dto.getOwnerId())) {
                     updatingEntity.setStudio(studio.get());
@@ -141,7 +222,7 @@ public class EntityCreatorService {
         updatingEntity.setOwner(caller);
 
         if (dto.getBestAlbumId() != null) {
-            var album = bandRepository.findAlbumById(dto.getBestAlbumId());
+            var album = albumRepository.findById(dto.getBestAlbumId());
             if (album.isPresent())
                 if (Objects.equals(album.get().getOwner().getId(), caller.getId())) {
                     updatingEntity.setBestAlbum(album.get());
@@ -154,7 +235,7 @@ public class EntityCreatorService {
         }
 
         if (dto.getStudioId() != null) {
-            var studio = bandRepository.findStudiobyId(dto.getStudioId());
+            var studio = studioRepository.findById(dto.getStudioId());
             if (studio.isPresent()) if (Objects.equals(studio.get().getOwner().getId(), caller.getId())) {
                 updatingEntity.setStudio(studio.get());
             } else {
@@ -205,6 +286,29 @@ public class EntityCreatorService {
         return entity;
     }
 
+    private Album fromDTOGeneral(AlbumDTO dto) throws DTOConstraintViolationException {
+        if (dto.getName() == null || dto.getName().isEmpty())
+            throw new DTOConstraintViolationException("Album Name must be non empty");
+
+        if (dto.getTracks() != null && dto.getTracks() <= 0)
+            throw new DTOConstraintViolationException("Music band must contain at least one participant");
+
+        var entity = new Album();
+
+        entity.setName(dto.getName());
+        entity.setTracks(dto.getTracks());
+        return entity;
+    }
+
+    private Studio fromDTOGeneral(StudioDTO dto) throws DTOConstraintViolationException {
+        if (dto.getName() == null || dto.getName().isEmpty())
+            throw new DTOConstraintViolationException("Album Name must be non empty");
+        var entity = new Studio();
+
+        entity.setName(dto.getName());
+        entity.setAddress(dto.getAddress());
+        return entity;
+    }
 
 
 }

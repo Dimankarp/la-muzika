@@ -24,10 +24,6 @@ public class Studio {
     private User owner;
 
 
-    protected Studio() {
-
-    }
-
     public Long getId() {
         return id;
     }

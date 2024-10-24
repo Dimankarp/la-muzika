@@ -51,7 +51,7 @@ public class DTOCreatorService {
         return dto;
     }
 
-    public static AlbumDTO toDTO(Album album) {
+    public AlbumDTO toDTO(Album album) {
 
         var dto = new AlbumDTO();
         dto.setId(album.getId());
@@ -61,7 +61,7 @@ public class DTOCreatorService {
         return dto;
     }
 
-    public static StudioDTO toDTO(Studio studio) {
+    public StudioDTO toDTO(Studio studio) {
 
         var dto = new StudioDTO();
         dto.setId(studio.getId());

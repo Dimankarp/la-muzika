@@ -3,7 +3,8 @@ import LoginForm from '@/components/LoginForm.vue';
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
-function redirectToTablePage() {
+function redirectToTablePage(e) {
+  console.log("REDIRECTING TO TABLE")
   router.push({name: 'table'})
 }
 

@@ -4,7 +4,8 @@ import '@/scss/login.scss'
 
 import { ref } from "vue";
 import {usernameIsValid, passwordIsValid} from "@/js/input_validation.js"
-import { updateUser } from '@/js/auth';
+import { fetchUser } from '../js/auth';
+
 
 const emit = defineEmits(['loginSuccess'])
 
@@ -60,8 +61,12 @@ function login(event) {
       credentials: "same-origin"
     }).then(async (response) => {
       if (response.ok) {
-        updateUser(username.value)
-        emit("loginSuccess")
+
+        if(await fetchUser())
+          emit("loginSuccess")
+        else 
+          loginTitle.value = "Failed to fetch user data!"
+      
       }
       else if (response.status === 409) {
         loginTitle.value = "User with such username doesn't exist!"

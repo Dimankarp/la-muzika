@@ -5,7 +5,7 @@ import TableView from '@/views/TableView.vue'
 import { userStore } from '@/js/store'
 const routes = [
   {
-    path: '/',
+    path: '/login',
     name: 'login',
     component: LoginView
 
@@ -35,7 +35,19 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  
+  if (to.name === 'login' || to.name === 'register' || to.name === 'not-found') {
+    if (userStore.isLoggedIn) {
+      console.log("REdirect to table")
+      return { name: 'table' }
+    }
+    else return true;
+  } else {
+    if (userStore.isLoggedIn) {
+      return true;
+    } else {
+      return { name: 'login' }
+    }
+  }
 })
 
 export default router

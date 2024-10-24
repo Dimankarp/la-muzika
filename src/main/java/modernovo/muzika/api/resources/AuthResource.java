@@ -2,6 +2,7 @@ package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import modernovo.muzika.model.User;
 import modernovo.muzika.model.UserDTO;
 import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.security.UserDetailsServiceImpl;
@@ -12,16 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 @RestController()
 @RequestMapping("/api/auth")
@@ -29,11 +29,26 @@ public class AuthResource {
 
     private UserService userService;
     private UserRepository userRepository;
+    private DTOCreatorService dtoCreator;
     private Logger logger = LoggerFactory.getLogger(AuthResource.class);
 
-    public AuthResource(UserService userService, UserRepository userRepository) {
+    public AuthResource(UserService userService, UserRepository userRepository, DTOCreatorService dtoCreator) {
         this.userService = userService;
         this.userRepository = userRepository;
+        this.dtoCreator = dtoCreator;
+    }
+
+
+    @GetMapping("/account")
+    public UserDTO account(HttpServletResponse response) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        Optional<User> user = userRepository.findByUsername(auth.getName());
+        if (user.isPresent()) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return dtoCreator.toDTO(user.get());
+        }
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        return null;
     }
 
     @PostMapping("/register")
