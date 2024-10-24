@@ -35,7 +35,10 @@ const totalPages = ref(1);
 const pageSize = ref(10);
 const errorMsg = ref("");
 const fetchUserOwned = ref(false);
-const showBandView = ref(false); // Control visibility of BandView
+const showBandView = ref(false);
+const bandViewNewSet = ref(false);
+const selectedEntry = ref(null)
+
 const sortInfoRef = reactive({
   id: '',
   dir: null,
@@ -122,15 +125,23 @@ const openBandView = () => {
 };
 
 const closeBandView = () => {
+  bandViewNewSet.value = false;
+  selectedEntry.value = null;
   showBandView.value = false;
 };
 
-const selectedEntry = ref(null)
+
 const entrySelected = (entry)=>{
   selectedEntry.value=entry;
-  console.log(entry)
+  bandViewNewSet.value = false;
   openBandView()
 }
+
+const openNewBandView = ()=>{
+  bandViewNewSet.value = true;
+  openBandView()
+}
+
 
 </script>
 
@@ -145,7 +156,7 @@ const entrySelected = (entry)=>{
     <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-    <button @click="openBandView">New</button> 
+    <button @click="openNewBandView">New</button> 
   </div>
-  <BandView v-if="showBandView" :isNew="selectedEntry === null" :updateBand="selectedEntry" @viewClosed="closeBandView" />
+  <BandView v-if="showBandView" v-bind="{isNew:bandViewNewSet, ...(selectedEntry !== null) && {updatedBand: selectedEntry}}" @viewClosed="closeBandView" />
 </template>

@@ -10,27 +10,29 @@ const { isNew, updateBand } = defineProps({
     updateBand: {
         type: Object,
         required: false,
-        default: () => ({
-            name: '',
-            coordX: 0,
-            coordY: 0,
-            genre: '',
-            numberOfParticipants: 0,
-            singlesCount: 0,
-            description: '',
-            albumsCount: 0,
-            ownerId: 0,
-            ownerName: '',
-            adminOpen: false,
-            bestAlbumId: 0,
-            studioId: 0
-        })
+        default: () => {
+            const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+            return {
+                name: 'Generic Band',
+                coordX: 0,
+                coordY: 0,
+                genre: 'ROCK',
+                numberOfParticipants: 1,
+                singlesCount: 1,
+                description: 'A band',
+                albumsCount: 1,
+                adminOpen: false,
+                bestAlbumId: null,
+                studioId: null,
+                establishmentDate: today
+            };
+        }
     }
-})
+});
 
-const emit = defineEmits(['viewClosed'])
-
-const band = reactive({ ...updateBand});
+const emit = defineEmits(['viewClosed']);
+console.log(updateBand.coordX);
+const band = reactive({ ...updateBand });
 const errors = reactive({
     name: '',
     coordX: '',
@@ -40,11 +42,10 @@ const errors = reactive({
     singlesCount: '',
     description: '',
     albumsCount: '',
-    ownerId: '',
-    ownerName: '',
     adminOpen: '',
     bestAlbumId: '',
-    studioId: ''
+    studioId: '',
+    establishmentDate: ''
 });
 
 const canEdit = computed(() => {
@@ -62,11 +63,10 @@ const validate = () => {
     errors.singlesCount = band.singlesCount >= 0 ? '' : 'Singles count must be non-negative';
     errors.description = band.description ? '' : 'Description is required';
     errors.albumsCount = band.albumsCount >= 0 ? '' : 'Albums count must be non-negative';
-    errors.ownerId = band.ownerId > 0 ? '' : 'Owner ID must be greater than 0';
-    errors.ownerName = band.ownerName ? '' : 'Owner name is required';
     errors.adminOpen = band.adminOpen !== null ? '' : 'Admin open status is required';
     errors.bestAlbumId = band.bestAlbumId >= 0 ? '' : 'Best album ID must be non-negative';
     errors.studioId = band.studioId >= 0 ? '' : 'Studio ID must be non-negative';
+    errors.establishmentDate = band.establishmentDate ? '' : 'Establishment date is required';
 };
 
 const hasErrors = computed(() => {
@@ -75,17 +75,27 @@ const hasErrors = computed(() => {
 
 watch(band, validate, { deep: true });
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
     validate();
     if (!hasErrors.value) {
         if (isNew) {
-            // Logic to create a new band
-            console.log('Creating new band:', band);
+            const d2 = new Date();
+            band.establishmentDate = d2.toJSON();
+            const response = await fetch("/api/bands", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(band)
+            });
+
+            console.log('Creating new band:', band, response);
         } else {
             // Logic to update the existing band
             console.log('Updating band:', band);
         }
-        emit('viewClosed')
+        emit('viewClosed');
     }
 };
 </script>
@@ -96,7 +106,6 @@ span {
     font-size: 0.8em;
 }
 </style>
-
 
 <template>
     <div>
@@ -119,7 +128,12 @@ span {
             </div>
             <div>
                 <label for="genre">Genre:</label>
-                <input type="text" v-model="band.genre" :disabled="!canEdit" />
+                <select v-model="band.genre" :disabled="!canEdit">
+                    <option value="ROCK">ROCK</option>
+                    <option value="BLUES">BLUES</option>
+                    <option value="MATH_ROCK">MATH_ROCK</option>
+                    <option value="PUNK_ROCK">PUNK_ROCK</option>
+                </select>
                 <span v-if="errors.genre">{{ errors.genre }}</span>
             </div>
             <div>
@@ -143,16 +157,6 @@ span {
                 <span v-if="errors.albumsCount">{{ errors.albumsCount }}</span>
             </div>
             <div>
-                <label for="ownerId">Owner ID:</label>
-                <input type="number" v-model="band.ownerId" :disabled="!canEdit" />
-                <span v-if="errors.ownerId">{{ errors.ownerId }}</span>
-            </div>
-            <div>
-                <label for="ownerName">Owner Name:</label>
-                <input type="text" v-model="band.ownerName" :disabled="!canEdit" />
-                <span v-if="errors.ownerName">{{ errors.ownerName }}</span>
-            </div>
-            <div>
                 <label for="adminOpen">Admin Open:</label>
                 <input type="checkbox" v-model="band.adminOpen" :disabled="!canEdit" />
                 <span v-if="errors.adminOpen">{{ errors.adminOpen }}</span>
@@ -166,6 +170,11 @@ span {
                 <label for="studioId">Studio ID:</label>
                 <input type="number" v-model="band.studioId" :disabled="!canEdit" />
                 <span v-if="errors.studioId">{{ errors.studioId }}</span>
+            </div>
+            <div>
+                <label for="establishmentDate">Establishment Date:</label>
+                <input type="date" v-model="band.establishmentDate" :disabled="!canEdit" />
+                <span v-if="errors.establishmentDate">{{ errors.establishmentDate }}</span>
             </div>
             <button type="button" @click.prevent="emit('viewClosed')">Back</button>
             <button type="submit" :disabled="!canEdit || hasErrors">{{ isNew ? 'Create' : 'Update' }}</button>

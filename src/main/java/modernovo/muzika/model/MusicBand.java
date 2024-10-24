@@ -19,7 +19,7 @@ public class MusicBand {
     private Coordinates coordinates;
 
 
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", insertable = false, updatable = true)
     private ZonedDateTime creationDate;
 
 

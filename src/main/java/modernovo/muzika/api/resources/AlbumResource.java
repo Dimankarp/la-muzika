@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()
-@RequestMapping("/api/bands")
+@RequestMapping("/api/albums")
 public class AlbumResource {
 
     private final Logger logger = LoggerFactory.getLogger(AlbumResource.class);
@@ -50,8 +50,8 @@ public class AlbumResource {
         }
         var owner = userOpt.get();
         try {
-            var band = entityCreatorService.fromDTONew(dto, owner);
-            albumRepository.save(band);
+            var album = entityCreatorService.fromDTONew(dto, owner);
+            albumRepository.save(album);
 
         } catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -70,8 +70,8 @@ public class AlbumResource {
         }
         var caller = userOpt.get();
         try {
-                var band = entityCreatorService.fromDTOUpdate(dto, caller);
-                albumRepository.save(band);
+                var album = entityCreatorService.fromDTOUpdate(dto, caller);
+                albumRepository.save(album);
         }
         catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -84,18 +84,18 @@ public class AlbumResource {
 
     @GetMapping(value = "")
     @Transactional
-    public Page<MusicBandDTO> getAlbums(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
+    public Page<AlbumDTO> getAlbums(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
         if(owner != null){
-            var bandsOpt =  bandService.getAlbumsDTO(p);
-            if(bandsOpt.isEmpty()){
+            var albumsOpt =  bandService.getAlbumsDTObyUsername(owner, p);
+            if(albumsOpt.isEmpty()){
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return null;
             } else {
-                return bandsOpt.get();
+                return albumsOpt.get();
             }
         }
         logger.debug("Request to get all bands without owner");
-        return bandService.getBandsDTO(p);
+        return bandService.getAlbumsDTO(p);
 
     }
 

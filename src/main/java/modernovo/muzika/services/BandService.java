@@ -36,10 +36,10 @@ public class BandService {
     @Transactional
     public Optional<Page<MusicBandDTO>> getBandsDTObyUsername(String username, Pageable p) {
         var user = userRepo.findByUsername(username);
-        if(user.isPresent()){
+        if (user.isPresent()) {
             var bands = bandRepository.getMusicBandsByOwner(user.get(), p);
             return Optional.of(bands.map(dtoCreator::toDTO));
-        } else{
+        } else {
             return Optional.empty();
         }
 
@@ -53,10 +53,10 @@ public class BandService {
     @Transactional
     public Optional<Page<AlbumDTO>> getAlbumsDTObyUsername(String username, Pageable p) {
         var user = userRepo.findByUsername(username);
-        if(user.isPresent()){
-            var bands = bandRepository.getMusicBandsByOwner(user.get(), p);
-            return Optional.of(bands.map(dtoCreator::toDTO));
-        } else{
+        if (user.isPresent()) {
+            var albums = albumRepository.getAlbumsByOwner(user.get(), p);
+            return Optional.of(albums.map(dtoCreator::toDTO));
+        } else {
             return Optional.empty();
         }
 
@@ -65,6 +65,19 @@ public class BandService {
     @Transactional
     public Page<AlbumDTO> getAlbumsDTO(Pageable p) {
         return albumRepository.findAll(p).map(dtoCreator::toDTO);
+    }
+
+
+    @Transactional
+    public Optional<Page<StudioDTO>> getStudioDTObyUsername(String username, Pageable p) {
+        var user = userRepo.findByUsername(username);
+        if (user.isPresent()) {
+            var studios = studioRepository.getStudiosByOwner(user.get(), p);
+            return Optional.of(studios.map(dtoCreator::toDTO));
+        } else {
+            return Optional.empty();
+        }
+
     }
 
     @Transactional

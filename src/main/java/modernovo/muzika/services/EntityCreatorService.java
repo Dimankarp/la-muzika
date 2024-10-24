@@ -283,6 +283,7 @@ public class EntityCreatorService {
         entity.setAlbumsCount(dto.getAlbumsCount());
         entity.setEstablishmentDate(dto.getEstablishmentDate());
         entity.setCoordinates(new Coordinates(dto.getCoordX(), dto.getCoordY()));
+        entity.setAdminOpen(dto.getAdminOpen());
         return entity;
     }
 

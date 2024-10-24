@@ -25,9 +25,9 @@ public class MusicBandResource {
     private final Logger logger = LoggerFactory.getLogger(MusicBandResource.class);
     private final EntityCreatorService entityCreatorService;
     private final UserRepository userRepository;
-    private final BandService bandService;
     private final BandRepository bandRepository;
     private final UserService userService;
+    private final BandService bandService;
 
     MusicBandResource(final UserRepository userRepository, final BandService bandService, BandRepository bandRepository, EntityCreatorService entityCreatorService, UserService userService) {
         this.userRepository = userRepository;
@@ -41,7 +41,7 @@ public class MusicBandResource {
     public String postBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var userOpt = userRepository.findByUsername(auth.getName());
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return "Caller not found among users";
         }
@@ -61,7 +61,7 @@ public class MusicBandResource {
     public String putBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var userOpt = userRepository.findByUsername(auth.getName());
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return "Caller not found among users";
         }
@@ -70,12 +70,11 @@ public class MusicBandResource {
             if (userService.hasAdminRights(caller)) {
                 var band = entityCreatorService.fromDTOAdminUpdate(dto, caller);
                 bandRepository.save(band);
-            } else{
+            } else {
                 var band = entityCreatorService.fromDTORegularUpdate(dto, caller);
                 bandRepository.save(band);
             }
-        }
-        catch (DTOConstraintViolationException e) {
+        } catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "Bad DTO: " + e.getMessage();
         }
@@ -87,9 +86,9 @@ public class MusicBandResource {
     @GetMapping(value = "")
     @Transactional
     public Page<MusicBandDTO> getBands(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
-        if(owner != null){
-            var bandsOpt =  bandService.getBandsDTObyUsername(owner, p);
-            if(bandsOpt.isEmpty()){
+        if (owner != null) {
+            var bandsOpt = bandService.getBandsDTObyUsername(owner, p);
+            if (bandsOpt.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return null;
             } else {

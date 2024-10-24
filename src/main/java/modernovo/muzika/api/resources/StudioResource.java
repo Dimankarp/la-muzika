@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()
-@RequestMapping("/api/bands")
+@RequestMapping("/api/studios")
 public class StudioResource {
 
     private final Logger logger = LoggerFactory.getLogger(StudioResource.class);
@@ -42,14 +42,14 @@ public class StudioResource {
     public String postStudio(@RequestBody StudioDTO dto, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var userOpt = userRepository.findByUsername(auth.getName());
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return "Caller not found among users";
         }
         var owner = userOpt.get();
         try {
-            var band = entityCreatorService.fromDTONew(dto, owner);
-            bandRepository.save(band);
+            var studio = entityCreatorService.fromDTONew(dto, owner);
+            studioRepository.save(studio);
 
         } catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -62,16 +62,15 @@ public class StudioResource {
     public String putStudio(@RequestBody StudioDTO dto, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var userOpt = userRepository.findByUsername(auth.getName());
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return "Caller not found among users";
         }
         var caller = userOpt.get();
         try {
-                var band = entityCreatorService.fromDTORegularUpdate(dto, caller);
-                studioRepository.save(band);
-        }
-        catch (DTOConstraintViolationException e) {
+            var studio = entityCreatorService.fromDTOUpdate(dto, caller);
+            studioRepository.save(studio);
+        } catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "Bad DTO: " + e.getMessage();
         }
@@ -83,17 +82,17 @@ public class StudioResource {
     @GetMapping(value = "")
     @Transactional
     public Page<StudioDTO> getStudios(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
-        if(owner != null){
-            var bandsOpt =  bandService.getBandsDTObyUsername(owner, p);
-            if(bandsOpt.isEmpty()){
+        if (owner != null) {
+            var studiosOpt = bandService.getStudioDTObyUsername(owner, p);
+            if (studiosOpt.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return null;
             } else {
-                return bandsOpt.get();
+                return studiosOpt.get();
             }
         }
         logger.debug("Request to get all bands without owner");
-        return bandService.getBandsDTO(p);
+        return bandService.getStudiosDTO(p);
 
     }
 
