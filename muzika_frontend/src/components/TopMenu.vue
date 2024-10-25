@@ -1,6 +1,5 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import { reactive } from 'vue';
 import { userStore } from '@/js/store';
 
 const router = useRouter();
@@ -60,9 +59,9 @@ const logout = () => {
 
 <template>
   <div class="top-menu">
-    <button @click="navigateTo('table')">Table</button>
-    <button @click="navigateTo('editing')">Editing</button>
-    <button @click="navigateTo('visualisation')">Visualisation</button>
+    <button @click="navigateTo('bands')">Bands</button>
+    <button @click="navigateTo('albums')">Albums</button>
+    <button @click="navigateTo('studios')">Studios</button>
     <div class="user-info">
       <span>{{ userStore.username }} ({{ userStore.isAdmin ? 'Admin' : 'User' }})</span>
       <button @click="logout">Logout</button>

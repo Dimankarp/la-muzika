@@ -1,9 +1,5 @@
 package modernovo.muzika.model;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
 public class StudioDTO {
 
     private Long id;
@@ -12,7 +8,9 @@ public class StudioDTO {
 
     private String address;
 
-    private Long ownerID;
+    private Long ownerId;
+
+    private String ownerName;
 
     public Long getId() {
         return id;
@@ -39,10 +37,18 @@ public class StudioDTO {
     }
 
     public Long getOwnerID() {
-        return ownerID;
+        return ownerId;
     }
 
     public void setOwnerID(Long ownerID) {
-        this.ownerID = ownerID;
+        this.ownerId = ownerID;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 }

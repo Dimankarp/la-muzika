@@ -57,7 +57,8 @@ public class DTOCreatorService {
         dto.setId(album.getId());
         dto.setName(album.getName());
         dto.setTracks(album.getTracks());
-        dto.setOwnerID(album.getOwner().getId());
+        dto.setOwnerId(album.getOwner().getId());
+        dto.setOwnerName(album.getOwner().getUsername());
         return dto;
     }
 
@@ -68,6 +69,7 @@ public class DTOCreatorService {
         dto.setName(studio.getName());
         dto.setAddress(studio.getAddress());
         dto.setOwnerID(studio.getOwner().getId());
+        dto.setOwnerName(studio.getOwner().getUsername());
         return dto;
 
     }

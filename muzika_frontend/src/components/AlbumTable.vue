@@ -1,43 +1,23 @@
 <script setup>
-import { ref, onMounted, onUnmounted, reactive } from "vue";
+import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { userStore } from '@/js/store';
-import BandTable from "@/components/BandTable.vue";
-import BandView from "@/views/BandView.vue";
+import TableHead from "@/components/TableHead.vue"
 import { useRouter } from "vue-router";
 
-const { entryType, isDeleteAllowed, shouldEmitEntry } = defineProps({
-  entryType: {
-    validator(value, props) {
-      return ['bands', 'albums', 'studios'].includes(value)
-    }
-  },
-  isDeleteAllowed: {
-    type: Boolean,
-    default() {
-      return true;
-    }
-  },
-  shouldEmitEntry: {
-    type: Boolean,
-    default() {
-      return false;
-    }
-  }
-})
-
 const FETCH_INTERVAL_MS = 5000
+
 var interval;
 
+const { isSelectMode = false } = defineProps(['isSelectMode'])
+
+const emit = defineEmits(['newAlbumClicked', 'albumSelected', 'updateAlbumSelected'])
+const albums = ref([]);
 const router = useRouter()
-const entries = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const pageSize = ref(10);
 const errorMsg = ref("");
 const fetchUserOwned = ref(false);
-const showBandView = ref(false);
-const bandViewNewSet = ref(false);
-const selectedEntry = ref(null)
 
 const sortInfoRef = reactive({
   id: '',
@@ -66,6 +46,7 @@ const sortInfoRef = reactive({
 var controller = new AbortController();
 onMounted(() => {
   fetchData();
+  console.log("Interval")
   interval = setInterval(async () => { await fetchData() }, FETCH_INTERVAL_MS)
 })
 
@@ -89,20 +70,21 @@ const fetchData = async () => {
     if (fetchUserOwned.value) {
       urlEncoded.append("owner", userStore.username);
     }
-    const response = await fetch(`/api/${entryType}?${urlEncoded.toString()}`, { signal: controller.signal });
+    const response = await fetch(`/api/albums?${urlEncoded.toString()}`, { signal: controller.signal });
 
     if (response.ok) {
       const data = await response.json();
-      entries.value = data.content;
+      albums.value = data.content;
+      console.log(albums.value)
       totalPages.value = data.page.totalPages;
     } else if (response.status == 401) {
       userStore.logout()
       router.replace('login')
     } else {
-      errorMsg.value = `Failed to fetch ${entryType}`;
+      errorMsg.value = `Failed to fetch albums`;
     }
   } catch (error) {
-    console.error('Error fetching entries:', error);
+    console.error('Error fetching albums:', error);
   }
 };
 
@@ -120,43 +102,82 @@ const prevPage = () => {
   }
 }
 
-const openBandView = () => {
-  showBandView.value = true;
-};
+const onAlbumDelete = async (entry) => {
+  const response = await fetch(`/api/albums/${entry.id}`, {
+    method: "DELETE"
+  });
+  if (response.ok) {
+    await fetchData();
+  } else {
+    console.log("Failed to delete because of " + response.body);
+  }
 
-const closeBandView = () => {
-  bandViewNewSet.value = false;
-  selectedEntry.value = null;
-  showBandView.value = false;
-};
-
-
-const entrySelected = (entry)=>{
-  selectedEntry.value=entry;
-  bandViewNewSet.value = false;
-  openBandView()
 }
-
-const openNewBandView = ()=>{
-  bandViewNewSet.value = true;
-  openBandView()
-}
-
 
 </script>
 
 <template>
-  <span v-text="errorMsg" />
-  <div v-if="!showBandView">
+
+  <div>
+    <span v-text="errorMsg" />
     <label>
       <input type="checkbox" v-model="fetchUserOwned" @change="fetchData" />
       User owned
     </label>
-    <BandTable :bands="entries" :sortInfoRef="sortInfoRef" @entrySelected="entrySelected"/>
+    <table>
+      <thead>
+        <tr>
+          <TableHead id='id' :sortInfo="sortInfoRef">ID</TableHead>
+          <TableHead id='name' :sortInfo="sortInfoRef">Name</TableHead>
+          <TableHead id='tracks' :sortInfo="sortInfoRef">Tracks</TableHead>
+          <TableHead id='owner.username' :sortInfo="sortInfoRef">Owner Name</TableHead>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="album in albums" :key="album.id" @click.prevent="emit('updateAlbumSelected', album)">
+          <td>{{ album.id }}</td>
+          <td>{{ album.name }}</td>
+          <td>{{ album.tracks }}</td>
+          <td>{{ album.ownerName }}</td>
+          <td>
+            <button v-if="!isSelectMode && album.ownerId === userStore.userId" @click.stop="onAlbumDelete(album)">Delete</button>
+            <button v-if="isSelectMode && album.ownerId === userStore.userId" @click.stop="emit('albumSelected', album)"> Select </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-    <button @click="openNewBandView">New</button> 
+    <button @click="emit('newAlbumClicked')">New</button>
   </div>
-  <BandView v-if="showBandView" v-bind="{isNew:bandViewNewSet, ...(selectedEntry !== null) && {updatedBand: selectedEntry}}" @viewClosed="closeBandView" />
 </template>
+
+
+<style scoped>
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+  text-align: left;
+  width: 150px;
+}
+
+tbody tr:hover {
+  background-color: beige;
+}
+
+button {
+  margin: 10px;
+}
+</style>

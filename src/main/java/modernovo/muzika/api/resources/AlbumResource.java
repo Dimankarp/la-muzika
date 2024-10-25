@@ -71,6 +71,7 @@ public class AlbumResource {
         var caller = userOpt.get();
         try {
                 var album = entityCreatorService.fromDTOUpdate(dto, caller);
+                logger.debug("New Album tracks: {}", album.getTracks());
                 albumRepository.save(album);
         }
         catch (DTOConstraintViolationException e) {
@@ -78,7 +79,7 @@ public class AlbumResource {
             return "Bad DTO: " + e.getMessage();
         }
 
-        return "Created";
+        return "Updated";
     }
 
 
@@ -94,9 +95,27 @@ public class AlbumResource {
                 return albumsOpt.get();
             }
         }
-        logger.debug("Request to get all bands without owner");
+        logger.debug("Request to get all albums without owner");
         return bandService.getAlbumsDTO(p);
 
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @Transactional
+    public String deleteAlbum(@PathVariable Long id, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var albumOpt = albumRepository.findById(id);
+        if (albumOpt.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return "Failed to find album";
+        }
+        var album = albumOpt.get();
+        if (album.getOwner().getUsername().equals(auth.getName())) {
+            albumRepository.delete(album);
+            return "Deleted";
+        }
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        return "Unauthorized";
     }
 
 

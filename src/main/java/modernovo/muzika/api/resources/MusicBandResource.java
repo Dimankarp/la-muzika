@@ -2,6 +2,7 @@ package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import modernovo.muzika.model.MusicBand;
 import modernovo.muzika.model.MusicBandDTO;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.UserRepository;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController()
 @RequestMapping("/api/bands")
@@ -67,19 +70,19 @@ public class MusicBandResource {
         }
         var caller = userOpt.get();
         try {
-            if (userService.hasAdminRights(caller)) {
-                var band = entityCreatorService.fromDTOAdminUpdate(dto, caller);
-                bandRepository.save(band);
+            MusicBand band;
+            if (Objects.equals(caller.getId(), dto.getOwnerId())) {
+                band = entityCreatorService.fromDTORegularUpdate(dto, caller);
             } else {
-                var band = entityCreatorService.fromDTORegularUpdate(dto, caller);
-                bandRepository.save(band);
+                band = entityCreatorService.fromDTOAdminUpdate(dto, caller);
             }
+            bandRepository.save(band);
         } catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "Bad DTO: " + e.getMessage();
         }
 
-        return "Created";
+        return "Updated";
     }
 
 
@@ -98,6 +101,24 @@ public class MusicBandResource {
         logger.debug("Request to get all bands without owner");
         return bandService.getBandsDTO(p);
 
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @Transactional
+    public String deleteBand(@PathVariable Long id, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var bandOpt = bandRepository.findById(id);
+        if (bandOpt.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return "Failed to find band";
+        }
+        var band = bandOpt.get();
+        if (band.getOwner().getUsername().equals(auth.getName())) {
+            bandRepository.delete(band);
+            return "Deleted";
+        }
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        return "Unauthorized";
     }
 
 

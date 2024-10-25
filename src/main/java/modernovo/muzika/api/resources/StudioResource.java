@@ -83,7 +83,7 @@ public class StudioResource {
     @Transactional
     public Page<StudioDTO> getStudios(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
         if (owner != null) {
-            var studiosOpt = bandService.getStudioDTObyUsername(owner, p);
+            var studiosOpt = bandService.getStudiosDTObyUsername(owner, p);
             if (studiosOpt.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return null;
@@ -91,9 +91,27 @@ public class StudioResource {
                 return studiosOpt.get();
             }
         }
-        logger.debug("Request to get all bands without owner");
         return bandService.getStudiosDTO(p);
 
+    }
+
+
+    @DeleteMapping(value = "/{id}")
+    @Transactional
+    public String deleteStudio(@PathVariable Long id, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var studioOpt = studioRepository.findById(id);
+        if (studioOpt.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return "Failed to find studio";
+        }
+        var studio = studioOpt.get();
+        if (studio.getOwner().getUsername().equals(auth.getName())) {
+            studioRepository.delete(studio);
+            return "Deleted";
+        }
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        return "Unauthorized";
     }
 
 

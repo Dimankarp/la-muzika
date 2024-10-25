@@ -8,7 +8,9 @@ public class AlbumDTO {
 
     private Integer tracks;
 
-    private Long ownerID;
+    private Long ownerId;
+
+    private String ownerName;
 
     public Long getId() {
         return id;
@@ -34,11 +36,19 @@ public class AlbumDTO {
         this.tracks = tracks;
     }
 
-    public Long getOwnerID() {
-        return ownerID;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setOwnerID(Long owner_id) {
-        this.ownerID = owner_id;
+    public void setOwnerId(Long owner_id) {
+        this.ownerId = owner_id;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 }

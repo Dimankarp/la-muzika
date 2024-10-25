@@ -1,16 +1,18 @@
 <script setup>
-import { ref, reactive, onActivated, onDeactivated, onMounted, onUnmounted } from "vue";
+import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { userStore } from '@/js/store';
-import { useRouter } from "vue-router";
 import TableHead from "@/components/TableHead.vue"
+import { useRouter } from "vue-router";
 
 const FETCH_INTERVAL_MS = 5000
 
 var interval;
 
-const emit = defineEmits(['newBandClicked', 'bandSelected'])
+const { isSelectMode = false } = defineProps(['isSelectMode'])
+
+const emit = defineEmits(['newStudioClicked', 'studioSelected', 'updateStudioSelected'])
+const studios = ref([]);
 const router = useRouter()
-const bands = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const pageSize = ref(10);
@@ -68,20 +70,21 @@ const fetchData = async () => {
     if (fetchUserOwned.value) {
       urlEncoded.append("owner", userStore.username);
     }
-    const response = await fetch(`/api/bands?${urlEncoded.toString()}`, { signal: controller.signal });
+    const response = await fetch(`/api/studios?${urlEncoded.toString()}`, { signal: controller.signal });
 
     if (response.ok) {
       const data = await response.json();
-      bands.value = data.content;
+      studios.value = data.content;
+      console.log(studios.value)
       totalPages.value = data.page.totalPages;
     } else if (response.status == 401) {
       userStore.logout()
       router.replace('login')
     } else {
-      errorMsg.value = `Failed to fetch bands`;
+      errorMsg.value = `Failed to fetch studios`;
     }
   } catch (error) {
-    console.error('Error fetching bands:', error);
+    console.error('Error fetching studios:', error);
   }
 };
 
@@ -99,8 +102,8 @@ const prevPage = () => {
   }
 }
 
-const bandDeleted = async (entry) => {
-  const response = await fetch(`/api/bands/${entry.id}`, {
+const onStudioDelete = async (entry) => {
+  const response = await fetch(`/api/studios/${entry.id}`, {
     method: "DELETE"
   });
   if (response.ok) {
@@ -124,39 +127,22 @@ const bandDeleted = async (entry) => {
     <table>
       <thead>
         <tr>
+          <TableHead id='id' :sortInfo="sortInfoRef">ID</TableHead>
           <TableHead id='name' :sortInfo="sortInfoRef">Name</TableHead>
-          <TableHead id='coordinates.x' :sortInfo="sortInfoRef">Coord X</TableHead>
-          <TableHead id='coordinates.y' :sortInfo="sortInfoRef">Coord Y</TableHead>
-          <TableHead id='creationDate' :sortInfo="sortInfoRef">Creation Date</TableHead>
-          <TableHead id='genre' :sortInfo="sortInfoRef">Genre</TableHead>
-          <TableHead id='numberOfParticipants' :sortInfo="sortInfoRef">Number of Participants</TableHead>
-          <TableHead id='singlesCount' :sortInfo="sortInfoRef">Singles Count</TableHead>
-          <TableHead id='description' :sortInfo="sortInfoRef">Description</TableHead>
-          <TableHead id='albumsCount' :sortInfo="sortInfoRef">Albums Count</TableHead>
-          <TableHead id='establishmentDate' :sortInfo="sortInfoRef">Establishment Date</TableHead>
+          <TableHead id='address' :sortInfo="sortInfoRef">Address</TableHead>
           <TableHead id='owner.username' :sortInfo="sortInfoRef">Owner Name</TableHead>
-          <TableHead id='bestAlbum.id' :sortInfo="sortInfoRef">Best Album</TableHead>
-          <TableHead id='studio.id' :sortInfo="sortInfoRef">Studio</TableHead>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="band in bands" :key="band.id" @click.prevent="emit('bandSelected', band)">
-          <td>{{ band.name }}</td>
-          <td>{{ band.coordX }}</td>
-          <td>{{ band.coordY }}</td>
-          <td>{{ band.creationDate }}</td>
-          <td>{{ band.genre }}</td>
-          <td>{{ band.numberOfParticipants }}</td>
-          <td>{{ band.singlesCount }}</td>
-          <td>{{ band.description }}</td>
-          <td>{{ band.albumsCount }}</td>
-          <td>{{ band.establishmentDate }}</td>
-          <td>{{ band.ownerName }}</td>
-          <td>{{ band.bestAlbum !== null ? band.bestAlbum.name : "-" }}</td>
-          <td>{{ band.studio !== null ? band.studio.name : "-" }}</td>
+        <tr v-for="studio in studios" :key="studio.id" @click.prevent="emit('updateStudioSelected', studio)">
+          <td>{{ studio.id }}</td>
+          <td>{{ studio.name }}</td>
+          <td>{{ studio.address }}</td>
+          <td>{{ studio.ownerName }}</td>
           <td>
-            <button v-if="band.ownerId === userStore.userId" @click.stop="bandDeleted(band)">Delete</button>
+            <button v-if="!isSelectMode && studio.ownerId === userStore.userId" @click.stop="onStudioDelete(studio)">Delete</button>
+            <button v-if="isSelectMode && studio.ownerId === userStore.userId" @click.stop="emit('studioSelected', studio)"> Select </button>
           </td>
         </tr>
       </tbody>
@@ -164,7 +150,7 @@ const bandDeleted = async (entry) => {
     <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-    <button @click="emit('newBandClicked')">New</button>
+    <button @click="emit('newStudioClicked')">New</button>
   </div>
 </template>
 

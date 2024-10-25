@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
-import TableView from '@/views/TableView.vue'
+import BandView from '@/views/BandView.vue'
 import { userStore } from '@/js/store'
+import AlbumView from '@/views/AlbumView.vue'
+import StudioView from '@/views/StudioView.vue'
 const routes = [
   {
     path: '/login',
@@ -11,12 +13,22 @@ const routes = [
 
   },
   {
-    path: '/table',
-    name: 'table',
-    component: TableView,
-    props: { entryType: 'bands' }
+    path: '/bands',
+    name: 'bands',
+    component: BandView,
   },
 
+  {
+    path: '/albums',
+    name: 'albums',
+    component: AlbumView,
+  },
+
+  {
+    path: '/studios',
+    name: 'studios',
+    component: StudioView,
+  },
   {
     path: '/register',
     name: 'register',
@@ -37,8 +49,8 @@ const router = createRouter({
 router.beforeEach((to) => {
   if (to.name === 'login' || to.name === 'register' || to.name === 'not-found') {
     if (userStore.isLoggedIn) {
-      console.log("REdirect to table")
-      return { name: 'table' }
+      console.log("Redirect to bands")
+      return { name: 'bands' }
     }
     else return true;
   } else {

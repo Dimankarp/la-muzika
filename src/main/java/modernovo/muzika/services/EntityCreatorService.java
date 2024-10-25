@@ -71,34 +71,6 @@ public class EntityCreatorService {
 
     }
 
-    @Transactional
-    public Album fromDTOUpdate(AlbumDTO dto, User caller) throws DTOConstraintViolationException {
-        if (dto == null) throw new DTOConstraintViolationException("Album DTO is Null");
-        if (dto.getId() == null) throw new DTOConstraintViolationException("FromDTOUpdate is called with null album id");
-        if (dto.getOwnerID() == null)
-            throw new DTOConstraintViolationException("Music band DTO must have an owner id");
-
-        var entityOpt = albumRepository.findById(dto.getId());
-        if (entityOpt.isEmpty()) {
-            throw new DTOConstraintViolationException("FromDTOUpdate is called with non existing album");
-        }
-
-        var persistedEntity = entityOpt.get();
-
-        if (!persistedEntity.getOwner().getId().equals(caller.getId())) {
-            throw new DTOConstraintViolationException("FromDTOUpdate is called for DTO owned by different owner");
-        }
-
-        if (!Objects.equals(dto.getOwnerID(), caller.getId())) {
-            throw new DTOConstraintViolationException("From DTO for regular update is called by a non-owner of DTO");
-        }
-
-        var updatingEntity = fromDTOGeneral(dto);
-        updatingEntity.setOwner(caller);
-        return updatingEntity;
-
-    }
-
 
     @Transactional
     public Studio fromDTONew(StudioDTO dto, User owner) throws DTOConstraintViolationException {
@@ -108,35 +80,6 @@ public class EntityCreatorService {
         return newEntity;
 
     }
-
-    @Transactional
-    public Studio fromDTOUpdate(StudioDTO dto, User caller) throws DTOConstraintViolationException {
-        if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
-        if (dto.getId() == null) throw new DTOConstraintViolationException("FromDTOUpdate is called with null studio id");
-        if (dto.getOwnerID() == null)
-            throw new DTOConstraintViolationException("Music band DTO must have an owner id");
-
-        var entityOpt = studioRepository.findById(dto.getId());
-        if (entityOpt.isEmpty()) {
-            throw new DTOConstraintViolationException("FromDTOUpdate is called with non existing studio");
-        }
-
-        var persistedEntity = entityOpt.get();
-
-        if (!persistedEntity.getOwner().getId().equals(caller.getId())) {
-            throw new DTOConstraintViolationException("FromDTOUpdate is called for DTO owned by different owner");
-        }
-
-        if (!Objects.equals(dto.getOwnerID(), caller.getId())) {
-            throw new DTOConstraintViolationException("From DTO for regular update is called by a non-owner of DTO");
-        }
-
-        var updatingEntity = fromDTOGeneral(dto);
-        updatingEntity.setOwner(caller);
-        return updatingEntity;
-
-    }
-
 
 
     @Transactional
@@ -219,6 +162,7 @@ public class EntityCreatorService {
         }
 
         var updatingEntity = fromDTOGeneral(dto);
+        updatingEntity.setId(persistedEntity.getId());
         updatingEntity.setOwner(caller);
 
         if (dto.getBestAlbumId() != null) {
@@ -250,6 +194,67 @@ public class EntityCreatorService {
 
 
     }
+
+    @Transactional
+    public Album fromDTOUpdate(AlbumDTO dto, User caller) throws DTOConstraintViolationException {
+        if (dto == null) throw new DTOConstraintViolationException("Album DTO is Null");
+        if (dto.getId() == null)
+            throw new DTOConstraintViolationException("FromDTOUpdate is called with null album id");
+        if (dto.getOwnerId() == null)
+            throw new DTOConstraintViolationException("Music band DTO must have an owner id");
+
+        var entityOpt = albumRepository.findById(dto.getId());
+        if (entityOpt.isEmpty()) {
+            throw new DTOConstraintViolationException("FromDTOUpdate is called with non existing album");
+        }
+
+        var persistedEntity = entityOpt.get();
+
+        if (!persistedEntity.getOwner().getId().equals(caller.getId())) {
+            throw new DTOConstraintViolationException("FromDTOUpdate is called for DTO owned by different owner");
+        }
+
+        if (!Objects.equals(dto.getOwnerId(), caller.getId())) {
+            throw new DTOConstraintViolationException("From DTO for regular update is called by a non-owner of DTO");
+        }
+
+        var updatingEntity = fromDTOGeneral(dto);
+        updatingEntity.setId(persistedEntity.getId());
+        updatingEntity.setOwner(caller);
+        return updatingEntity;
+
+    }
+
+    @Transactional
+    public Studio fromDTOUpdate(StudioDTO dto, User caller) throws DTOConstraintViolationException {
+        if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
+        if (dto.getId() == null)
+            throw new DTOConstraintViolationException("FromDTOUpdate is called with null studio id");
+        if (dto.getOwnerID() == null)
+            throw new DTOConstraintViolationException("Music band DTO must have an owner id");
+
+        var entityOpt = studioRepository.findById(dto.getId());
+        if (entityOpt.isEmpty()) {
+            throw new DTOConstraintViolationException("FromDTOUpdate is called with non existing studio");
+        }
+
+        var persistedEntity = entityOpt.get();
+
+        if (!persistedEntity.getOwner().getId().equals(caller.getId())) {
+            throw new DTOConstraintViolationException("FromDTOUpdate is called for DTO owned by different owner");
+        }
+
+        if (!Objects.equals(dto.getOwnerID(), caller.getId())) {
+            throw new DTOConstraintViolationException("From DTO for regular update is called by a non-owner of DTO");
+        }
+
+        var updatingEntity = fromDTOGeneral(dto);
+        updatingEntity.setId(persistedEntity.getId());
+        updatingEntity.setOwner(caller);
+        return updatingEntity;
+
+    }
+
 
     private MusicBand fromDTOGeneral(MusicBandDTO dto) throws DTOConstraintViolationException {
         if (dto.getName() == null || dto.getName().isEmpty())
@@ -284,6 +289,8 @@ public class EntityCreatorService {
         entity.setEstablishmentDate(dto.getEstablishmentDate());
         entity.setCoordinates(new Coordinates(dto.getCoordX(), dto.getCoordY()));
         entity.setAdminOpen(dto.getAdminOpen());
+        entity.setDescription(dto.getDescription());
+        entity.setCoordinates(new Coordinates(dto.getCoordX(), dto.getCoordY()));
         return entity;
     }
 

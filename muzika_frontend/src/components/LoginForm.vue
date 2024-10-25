@@ -4,7 +4,7 @@ import '@/scss/login.scss'
 
 import { ref } from "vue";
 import {usernameIsValid, passwordIsValid} from "@/js/input_validation.js"
-import { fetchUser } from '../js/auth';
+import { fetchUser } from '@/js/auth';
 
 
 const emit = defineEmits(['loginSuccess'])

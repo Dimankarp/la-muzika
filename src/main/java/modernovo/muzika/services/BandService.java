@@ -69,7 +69,7 @@ public class BandService {
 
 
     @Transactional
-    public Optional<Page<StudioDTO>> getStudioDTObyUsername(String username, Pageable p) {
+    public Optional<Page<StudioDTO>> getStudiosDTObyUsername(String username, Pageable p) {
         var user = userRepo.findByUsername(username);
         if (user.isPresent()) {
             var studios = studioRepository.getStudiosByOwner(user.get(), p);

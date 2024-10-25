@@ -4,8 +4,8 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 function redirectToTablePage(e) {
-  console.log("REDIRECTING TO TABLE")
-  router.push({name: 'table'})
+  console.log("REDIRECTING TO BANDS")
+  router.push({name: 'bands'})
 }
 
 </script>
