@@ -62,6 +62,7 @@ const logout = () => {
     <button @click="navigateTo('bands')">Bands</button>
     <button @click="navigateTo('albums')">Albums</button>
     <button @click="navigateTo('studios')">Studios</button>
+    <button @click="navigateTo('visual')">Visualization</button>
     <div class="user-info">
       <span>{{ userStore.username }} ({{ userStore.isAdmin ? 'Admin' : 'User' }})</span>
       <button @click="logout">Logout</button>

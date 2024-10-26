@@ -5,6 +5,7 @@ import BandView from '@/views/BandView.vue'
 import { userStore } from '@/js/store'
 import AlbumView from '@/views/AlbumView.vue'
 import StudioView from '@/views/StudioView.vue'
+import BandVisualiser from '@/components/BandVisualiser.vue'
 const routes = [
   {
     path: '/login',
@@ -33,6 +34,11 @@ const routes = [
     path: '/register',
     name: 'register',
     component: RegisterView
+  },
+  {
+    path: '/visual',
+    name: 'visual',
+    component: BandVisualiser
   },
   {
     path: '/:pathMatch(.*)*',

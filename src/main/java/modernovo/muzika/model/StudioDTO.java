@@ -36,12 +36,12 @@ public class StudioDTO {
         this.address = address;
     }
 
-    public Long getOwnerID() {
+    public Long getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerID(Long ownerID) {
-        this.ownerId = ownerID;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getOwnerName() {

@@ -68,7 +68,7 @@ public class DTOCreatorService {
         dto.setId(studio.getId());
         dto.setName(studio.getName());
         dto.setAddress(studio.getAddress());
-        dto.setOwnerID(studio.getOwner().getId());
+        dto.setOwnerId(studio.getOwner().getId());
         dto.setOwnerName(studio.getOwner().getUsername());
         return dto;
 

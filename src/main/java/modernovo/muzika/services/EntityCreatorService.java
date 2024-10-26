@@ -230,7 +230,7 @@ public class EntityCreatorService {
         if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
         if (dto.getId() == null)
             throw new DTOConstraintViolationException("FromDTOUpdate is called with null studio id");
-        if (dto.getOwnerID() == null)
+        if (dto.getOwnerId() == null)
             throw new DTOConstraintViolationException("Music band DTO must have an owner id");
 
         var entityOpt = studioRepository.findById(dto.getId());
@@ -244,7 +244,7 @@ public class EntityCreatorService {
             throw new DTOConstraintViolationException("FromDTOUpdate is called for DTO owned by different owner");
         }
 
-        if (!Objects.equals(dto.getOwnerID(), caller.getId())) {
+        if (!Objects.equals(dto.getOwnerId(), caller.getId())) {
             throw new DTOConstraintViolationException("From DTO for regular update is called by a non-owner of DTO");
         }
 
