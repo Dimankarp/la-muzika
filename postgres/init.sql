@@ -138,7 +138,8 @@ create table public.admin_requests
     id            bigint generated always as identity primary key,
     creation_date timestamp with time zone default CURRENT_TIMESTAMP not null,
     user_id       bigint                                             references public.account
-                                                                         on update cascade on delete set null
+                                                                         on update cascade on delete cascade,
+    status        varchar(255)             default 'PENDING'         not null
 );
 
 alter table public.audit
