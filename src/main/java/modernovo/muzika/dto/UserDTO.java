@@ -1,4 +1,4 @@
-package modernovo.muzika.model;
+package modernovo.muzika.dto;
 
 public class UserDTO{
     private Long id;

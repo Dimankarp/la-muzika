@@ -1,6 +1,7 @@
-package modernovo.muzika.model;
+package modernovo.muzika.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import modernovo.muzika.model.MusicGenre;
 
 import java.time.ZonedDateTime;
 

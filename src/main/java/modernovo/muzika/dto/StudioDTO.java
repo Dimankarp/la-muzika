@@ -1,12 +1,12 @@
-package modernovo.muzika.model;
+package modernovo.muzika.dto;
 
-public class AlbumDTO {
+public class StudioDTO {
 
     private Long id;
 
     private String name;
 
-    private Integer tracks;
+    private String address;
 
     private Long ownerId;
 
@@ -28,20 +28,20 @@ public class AlbumDTO {
         this.name = name;
     }
 
-    public Integer getTracks() {
-        return tracks;
+    public String getAddress() {
+        return address;
     }
 
-    public void setTracks(Integer tracks) {
-        this.tracks = tracks;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public Long getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerId(Long owner_id) {
-        this.ownerId = owner_id;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getOwnerName() {
