@@ -1,9 +1,10 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { userStore } from '@/js/store';
+import { onMounted, ref } from 'vue';
 
 const router = useRouter();
-
+const isPending = ref(false)
 const navigateTo = (route) => {
   router.push({ name: route });
 };
@@ -14,6 +15,33 @@ const logout = () => {
   userStore.logout()
   router.replace('login')
 };
+
+const onRequestAdmin = async ()=>{
+  const response = await fetch(`/api/requests`, {
+    method: "POST"
+  });
+  if (response.ok) {
+    isPending.value = true;
+  } else {
+    isPending.value = false;
+    console.log("Failed to delete because of " + response.body);
+  }
+}
+
+onMounted(async () => {
+  if(!userStore.isAdmin){
+  const response = await fetch(`/api/requests/pending`, {
+    method: "GET"
+  });
+  if (response.ok) {
+    isPending.value = await response.json()
+  } else {
+    isPending.value = false;
+    console.log("Failed to delete because of " + response.body);
+  }
+}
+})
+
 </script>
 
 <style scoped>
@@ -62,10 +90,13 @@ const logout = () => {
     <button @click="navigateTo('bands')">Bands</button>
     <button @click="navigateTo('albums')">Albums</button>
     <button @click="navigateTo('studios')">Studios</button>
+    <button v-if="userStore.isAdmin" @click="navigateTo('requests')">Admin Requests</button>
     <button @click="navigateTo('visual')">Visualization</button>
+
     <div class="user-info">
       <span>{{ userStore.username }} ({{ userStore.isAdmin ? 'Admin' : 'User' }})</span>
       <button @click="logout">Logout</button>
+      <button v-if="!userStore.isAdmin" :disabled="isPending" @click="onRequestAdmin">RequestAdmin</button>
     </div>
   </div>
 </template>

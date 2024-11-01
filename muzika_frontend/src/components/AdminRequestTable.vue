@@ -8,16 +8,13 @@ const FETCH_INTERVAL_MS = 10000
 
 var interval;
 
-const { isSelectMode = false } = defineProps(['isSelectMode'])
 
-const emit = defineEmits(['newStudioClicked', 'studioSelected', 'updateStudioSelected'])
-const studios = ref([]);
+const requests = ref([]);
 const router = useRouter()
 const currentPage = ref(1);
 const totalPages = ref(1);
 const pageSize = ref(10);
 const errorMsg = ref("");
-const fetchUserOwned = ref(false);
 
 const sortInfoRef = reactive({
   id: '',
@@ -46,7 +43,6 @@ const sortInfoRef = reactive({
 var controller = new AbortController();
 onMounted(() => {
   fetchData();
-  console.log("Interval")
   interval = setInterval(async () => { await fetchData() }, FETCH_INTERVAL_MS)
 })
 
@@ -67,24 +63,21 @@ const fetchData = async () => {
     if (sortInfoRef.id !== null && sortInfoRef.dir !== null) {
       urlEncoded.append("sort", `${sortInfoRef.id},${sortInfoRef.dir}`);
     }
-    if (fetchUserOwned.value) {
-      urlEncoded.append("owner", userStore.username);
-    }
-    const response = await fetch(`/api/studios?${urlEncoded.toString()}`, { signal: controller.signal });
+    const response = await fetch(`/api/requests?${urlEncoded.toString()}`, { signal: controller.signal });
 
     if (response.ok) {
       const data = await response.json();
-      studios.value = data.content;
-      console.log(studios.value)
+      requests.value = data.content;
+      console.log(requests.value)
       totalPages.value = data.page.totalPages;
     } else if (response.status == 401) {
       userStore.logout()
       router.replace('login')
     } else {
-      errorMsg.value = `Failed to fetch studios`;
+      errorMsg.value = `Failed to fetch requests`;
     }
   } catch (error) {
-    console.error('Error fetching studios:', error);
+    console.error('Error fetching requests:', error);
   }
 };
 
@@ -102,14 +95,14 @@ const prevPage = () => {
   }
 }
 
-const onStudioDelete = async (entry) => {
-  const response = await fetch(`/api/studios/${entry.id}`, {
-    method: "DELETE"
+const onRequestAccept = async (entry) => {
+  const response = await fetch(`/api/requests/accept/${entry.id}`, {
+    method: "POST"
   });
   if (response.ok) {
     await fetchData();
   } else {
-    console.log("Failed to delete because of " + response.body);
+    console.log("Failed to accept because of " + response.body);
   }
 
 }
@@ -120,29 +113,22 @@ const onStudioDelete = async (entry) => {
 
   <div>
     <span v-text="errorMsg" />
-    <label>
-      <input type="checkbox" v-model="fetchUserOwned" @change="fetchData" />
-      User owned
-    </label>
     <table>
       <thead>
         <tr>
           <TableHead id='id' :sortInfo="sortInfoRef">ID</TableHead>
-          <TableHead id='name' :sortInfo="sortInfoRef">Name</TableHead>
-          <TableHead id='address' :sortInfo="sortInfoRef">Address</TableHead>
+          <TableHead id='creationDate' :sortInfo="sortInfoRef">Creation Date</TableHead>
           <TableHead id='owner.username' :sortInfo="sortInfoRef">Owner Name</TableHead>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="studio in studios" :key="studio.id" @click.prevent="emit('updateStudioSelected', studio)">
-          <td>{{ studio.id }}</td>
-          <td>{{ studio.name }}</td>
-          <td>{{ studio.address }}</td>
-          <td>{{ studio.ownerName }}</td>
+        <tr v-for="request in requests" :key="request.id">
+          <td>{{ request.id }}</td>
+          <td>{{ request.creationDate }}</td>
+          <td>{{ request.senderName }}</td>
           <td>
-            <button v-if="!isSelectMode && studio.ownerId === userStore.userId" @click.stop="onStudioDelete(studio)">Delete</button>
-            <button v-if="isSelectMode && studio.ownerId === userStore.userId" @click.stop="emit('studioSelected', studio)"> Select </button>
+            <button @click.stop="onRequestAccept(request)"> Accept </button>
           </td>
         </tr>
       </tbody>
@@ -150,7 +136,6 @@ const onStudioDelete = async (entry) => {
     <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-    <button @click="emit('newStudioClicked')">New</button>
   </div>
 </template>
 

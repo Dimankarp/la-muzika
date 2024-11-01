@@ -4,7 +4,7 @@ import { userStore } from '@/js/store';
 import { useRouter } from "vue-router";
 import TableHead from "@/components/TableHead.vue"
 
-const FETCH_INTERVAL_MS = 5000
+const FETCH_INTERVAL_MS = 10000
 
 var interval;
 

@@ -6,7 +6,8 @@ import AlbumView from "@/views/AlbumView.vue";
 import StudioView from "@/views/StudioView.vue";
 
 const component = shallowRef(BandTable)
-var cachedBand = ref({})
+const cachedBand = ref({})
+const cachedIsNew = ref(false)
 const props = ref({})
 const onNewBandClicked = () => {
   props.value.isNew = true;
@@ -26,26 +27,28 @@ const onFormClosed = () => {
 
 const onAlbumRequested = (band) => {
   cachedBand.value = band
+  cachedIsNew.value = props.value.isNew
   props.value = { isSelectMode: true };
   component.value = AlbumView;
 }
 
 const onAlbumSelected = (album) => {
 
-  cachedBand.value.album = album;
-  props.value = { isNew: false, updateBand: cachedBand.value }
+  cachedBand.value.bestAlbum = album;
+  props.value = { isNew: cachedIsNew.value, updateBand: cachedBand.value }
   component.value = BandForm;
 }
 
 const onStudioRequested = (band) => {
   cachedBand.value = band
+  cachedIsNew.value = props.value.isNew
   props.value = { isSelectMode: true };
   component.value = StudioView;
 }
 
 const onStudioSelected = (studio) => {
   cachedBand.value.studio = studio;
-  props.value = { isNew: false, updateBand: cachedBand.value }
+  props.value = { isNew: cachedIsNew.value, updateBand: cachedBand.value }
   component.value = BandForm;
 }
 

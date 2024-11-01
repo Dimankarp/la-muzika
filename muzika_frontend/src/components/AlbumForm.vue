@@ -14,7 +14,7 @@ const { isNew, updateAlbum } = defineProps({
             const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
             return {
                 name: 'Generic Album',
-                tracks: 0,
+                tracks: 1,
             };
         }
     }
@@ -35,7 +35,7 @@ const canEdit = computed(() => {
 
 const validate = () => {
     errors.name = album.name ? '' : 'Album name is required';
-    errors.tracks = album.tracks >= 0 ? '' : 'Tracks count must be non-negative';
+    errors.tracks = album.tracks > 0 ? '' : 'Album must contain at least one track';
 };
 
 const hasErrors = computed(() => {

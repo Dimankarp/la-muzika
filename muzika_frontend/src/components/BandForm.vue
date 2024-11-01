@@ -23,7 +23,7 @@ const { isNew, updateBand } = defineProps({
                 albumsCount: 1,
                 adminOpen: false,
                 establishmentDate: today,
-                album:undefined,
+                bestAlbum:undefined,
                 studio:undefined
             };
         }
@@ -74,6 +74,14 @@ watch(band, validate, { deep: true });
 
 const handleSubmit = async () => {
     validate();
+    if(band.studio){
+        band.studioId = band.studio.id
+    }
+    if(band.bestAlbum){
+        band.bestAlbumId = band.bestAlbum.id
+    }
+
+
     if (!hasErrors.value) {
         if (isNew) {
             const d2 = new Date();
@@ -174,32 +182,27 @@ span {
                 <span v-if="errors.adminOpen">{{ errors.adminOpen }}</span>
             </div>
             <div>
-                <label for="studioId">Studio ID:</label>
-                <input type="number" v-model="band.studioId" :disabled="!canEdit" />
-                <span v-if="errors.studioId">{{ errors.studioId }}</span>
-            </div>
-            <div>
                 <label for="establishmentDate">Establishment Date:</label>
                 <input type="date" v-model="band.establishmentDate" :disabled="!canEdit" />
                 <span v-if="errors.establishmentDate">{{ errors.establishmentDate }}</span>
             </div>
             <div>
                 <h2>Album</h2>
-                <button type="button" @click.prevent="onAlbumRequested">Request Album</button>
-                <div v-if="band.album">
+                <button type="button" :disabled="!canEdit" @click.prevent="onAlbumRequested">Request Album</button>
+                <div v-if="band.bestAlbum">
                     <div>
                         <label for="albumId">Id:</label>
-                        <input type="test" v-model="band.album.id" :disabled="true" />
+                        <input type="test" v-model="band.bestAlbum.id" :disabled="true" />
                     </div>
                     <div>
                         <label for="albumName">Album Name:</label>
-                        <input type="text" v-model="band.album.name" :disabled="true" />
+                        <input type="text" v-model="band.bestAlbum.name" :disabled="true" />
                     </div>
                 </div>
             </div>
             <div>
                 <h2>Studio</h2>
-                <button type="button" @click.prevent="onStudioRequested">Request Studio</button>
+                <button type="button" :disabled="!canEdit" @click.prevent="onStudioRequested">Request Studio</button>
                 <div v-if="band.studio">
                     <div>
                         <label for="studioId">Id:</label>

@@ -6,6 +6,7 @@ import { userStore } from '@/js/store'
 import AlbumView from '@/views/AlbumView.vue'
 import StudioView from '@/views/StudioView.vue'
 import BandVisualiser from '@/components/BandVisualiser.vue'
+import AdminRequestTable from '@/components/AdminRequestTable.vue'
 const routes = [
   {
     path: '/login',
@@ -35,6 +36,12 @@ const routes = [
     name: 'register',
     component: RegisterView
   },
+  {
+    path: '/requests',
+    name: 'requests',
+    component: AdminRequestTable
+  },
+
   {
     path: '/visual',
     name: 'visual',

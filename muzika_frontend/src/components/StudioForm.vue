@@ -12,7 +12,7 @@ const { isNew, updateStudio } = defineProps({
         required: false,
         default: () => {
             return {
-                name: 'Generic Album',
+                name: 'Generic Studio',
                 address: 'Planet Earth',
             };
         }
