@@ -3,20 +3,16 @@ package modernovo.muzika.api.resources;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import modernovo.muzika.model.User;
-import modernovo.muzika.model.UserDTO;
+import modernovo.muzika.dto.UserDTO;
 import modernovo.muzika.repositories.UserRepository;
-import modernovo.muzika.security.UserDetailsServiceImpl;
-import modernovo.muzika.services.DTOCreatorService;
 import modernovo.muzika.services.UserService;
-import org.hibernate.exception.ConstraintViolationException;
+import modernovo.muzika.services.dto_creators.UserDTOCreatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
@@ -29,10 +25,10 @@ public class AuthResource {
 
     private UserService userService;
     private UserRepository userRepository;
-    private DTOCreatorService dtoCreator;
+    private UserDTOCreatorService dtoCreator;
     private Logger logger = LoggerFactory.getLogger(AuthResource.class);
 
-    public AuthResource(UserService userService, UserRepository userRepository, DTOCreatorService dtoCreator) {
+    public AuthResource(UserService userService, UserRepository userRepository, UserDTOCreatorService dtoCreator) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.dtoCreator = dtoCreator;

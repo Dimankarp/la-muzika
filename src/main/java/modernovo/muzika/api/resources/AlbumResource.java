@@ -2,15 +2,14 @@ package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import modernovo.muzika.model.AlbumDTO;
-import modernovo.muzika.model.MusicBandDTO;
+import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.services.BandService;
 import modernovo.muzika.services.DTOConstraintViolationException;
-import modernovo.muzika.services.EntityCreatorService;
 import modernovo.muzika.services.UserService;
+import modernovo.muzika.services.entity_creators.AlbumEntityCreatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,14 +23,14 @@ import org.springframework.web.bind.annotation.*;
 public class AlbumResource {
 
     private final Logger logger = LoggerFactory.getLogger(AlbumResource.class);
-    private final EntityCreatorService entityCreatorService;
+    private final AlbumEntityCreatorService entityCreatorService;
     private final UserRepository userRepository;
     private final BandService bandService;
     private final BandRepository bandRepository;
     private final UserService userService;
     private final AlbumRepository albumRepository;
 
-    AlbumResource(final UserRepository userRepository, final BandService bandService, BandRepository bandRepository, EntityCreatorService entityCreatorService, UserService userService, AlbumRepository albumRepository) {
+    AlbumResource(final UserRepository userRepository, final BandService bandService, BandRepository bandRepository, AlbumEntityCreatorService entityCreatorService, UserService userService, AlbumRepository albumRepository) {
         this.userRepository = userRepository;
         this.bandService = bandService;
         this.bandRepository = bandRepository;

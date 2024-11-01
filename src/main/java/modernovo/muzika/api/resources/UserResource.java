@@ -2,10 +2,10 @@ package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletResponse;
 import modernovo.muzika.model.User;
-import modernovo.muzika.model.UserDTO;
+import modernovo.muzika.dto.UserDTO;
 import modernovo.muzika.repositories.UserRepository;
 
-import modernovo.muzika.services.DTOCreatorService;
+import modernovo.muzika.services.dto_creators.UserDTOCreatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,10 +21,10 @@ import java.util.Optional;
 @RequestMapping("/api/users")
 public class UserResource {
     private final Logger logger = LoggerFactory.getLogger(UserResource.class);
-    private final DTOCreatorService dtoCreatorService;
+    private final UserDTOCreatorService dtoCreatorService;
     private final UserRepository userRepo;
 
-    public UserResource(UserRepository userRepo, DTOCreatorService dtoCreatorService) {
+    public UserResource(UserRepository userRepo, UserDTOCreatorService dtoCreatorService) {
         this.userRepo = userRepo;
         this.dtoCreatorService = dtoCreatorService;
     }
