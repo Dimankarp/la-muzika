@@ -88,19 +88,18 @@ public class MusicBandResource {
 
     @GetMapping(value = "")
     @Transactional
-    public Page<MusicBandDTO> getBands(@RequestParam(required = false) String owner, HttpServletResponse response, @PageableDefault(sort = {"name"}, value = 50) Pageable p) {
-        if (owner != null) {
-            var bandsOpt = bandService.getBandsDTObyUsername(owner, p);
-            if (bandsOpt.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                return null;
-            } else {
-                return bandsOpt.get();
-            }
+    public Page<MusicBandDTO> getBands(@RequestParam(required = false) String owner,
+                                       @RequestParam(required = false) String name,
+                                       @RequestParam(required = false) String description,
+                                       HttpServletResponse response,
+                                       @PageableDefault(sort = {"name"}, value = 50) Pageable p) {
+        var bandsOpt = bandService.getBandsDTO(owner, name, description, p);
+        if (bandsOpt.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        } else {
+            return bandsOpt.get();
         }
-        logger.debug("Request to get all bands without owner");
-        return bandService.getBandsDTO(p);
-
     }
 
     @DeleteMapping(value = "/{id}")

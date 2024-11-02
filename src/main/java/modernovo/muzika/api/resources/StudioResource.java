@@ -2,6 +2,7 @@ package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.dto.StudioDTO;
 import modernovo.muzika.repositories.StudioRepository;
 import modernovo.muzika.repositories.UserRepository;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -79,18 +81,18 @@ public class StudioResource {
 
     @GetMapping(value = "")
     @Transactional
-    public Page<StudioDTO> getStudios(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
-        if (owner != null) {
-            var studiosOpt = bandService.getStudiosDTObyUsername(owner, p);
-            if (studiosOpt.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                return null;
-            } else {
-                return studiosOpt.get();
-            }
+    public Page<StudioDTO> getStudios(@RequestParam(required = false) String owner,
+                                      @RequestParam(required = false) String name,
+                                      @RequestParam(required = false) String address,
+                                      HttpServletResponse response,
+                                      @PageableDefault(sort = {"name"}, value = 50) Pageable p) {
+        var studioOpt = bandService.getStudiosDTO(owner, name, address, p);
+        if (studioOpt.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        } else {
+            return studioOpt.get();
         }
-        return bandService.getStudiosDTO(p);
-
     }
 
 

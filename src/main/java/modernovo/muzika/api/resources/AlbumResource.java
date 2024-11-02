@@ -3,6 +3,7 @@ package modernovo.muzika.api.resources;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import modernovo.muzika.dto.AlbumDTO;
+import modernovo.muzika.dto.MusicBandDTO;
 import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.UserRepository;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +45,7 @@ public class AlbumResource {
     public String postAlbum(@RequestBody AlbumDTO dto, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var userOpt = userRepository.findByUsername(auth.getName());
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return "Caller not found among users";
         }
@@ -63,17 +65,16 @@ public class AlbumResource {
     public String putAlbum(@RequestBody AlbumDTO dto, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var userOpt = userRepository.findByUsername(auth.getName());
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return "Caller not found among users";
         }
         var caller = userOpt.get();
         try {
-                var album = entityCreatorService.fromDTOUpdate(dto, caller);
-                logger.debug("New Album tracks: {}", album.getTracks());
-                albumRepository.save(album);
-        }
-        catch (DTOConstraintViolationException e) {
+            var album = entityCreatorService.fromDTOUpdate(dto, caller);
+            logger.debug("New Album tracks: {}", album.getTracks());
+            albumRepository.save(album);
+        } catch (DTOConstraintViolationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "Bad DTO: " + e.getMessage();
         }
@@ -84,19 +85,17 @@ public class AlbumResource {
 
     @GetMapping(value = "")
     @Transactional
-    public Page<AlbumDTO> getAlbums(@RequestParam(required = false) String owner, HttpServletResponse response, Pageable p) {
-        if(owner != null){
-            var albumsOpt =  bandService.getAlbumsDTObyUsername(owner, p);
-            if(albumsOpt.isEmpty()){
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                return null;
-            } else {
-                return albumsOpt.get();
-            }
+    public Page<AlbumDTO> getAlbums(@RequestParam(required = false) String owner,
+                                    @RequestParam(required = false) String name,
+                                    HttpServletResponse response,
+                                    @PageableDefault(sort = {"name"}, value = 50) Pageable p) {
+        var albumsOpt = bandService.getAlbumsDTO(owner, name, p);
+        if (albumsOpt.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        } else {
+            return albumsOpt.get();
         }
-        logger.debug("Request to get all albums without owner");
-        return bandService.getAlbumsDTO(p);
-
     }
 
     @DeleteMapping(value = "/{id}")

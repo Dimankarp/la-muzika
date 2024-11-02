@@ -3,6 +3,7 @@ import { ref, reactive, onActivated, onDeactivated, onMounted, onUnmounted } fro
 import { userStore } from '@/js/store';
 import { useRouter } from "vue-router";
 import TableHead from "@/components/TableHead.vue"
+import TableHeadWithFilter from "@/components/TableHeadWithFilter.vue"
 
 const FETCH_INTERVAL_MS = 10000
 
@@ -20,6 +21,8 @@ const fetchUserOwned = ref(false);
 const sortInfoRef = reactive({
   id: '',
   dir: null,
+  name: '',
+  description: '',
   sortChange(id) {
     if (id != this.id) {
       this.id = id;
@@ -38,7 +41,12 @@ const sortInfoRef = reactive({
       }
     }
     fetchData();
+  },
+  updateFilter(name, val) {
+    this[name] = val;
+    fetchData();
   }
+
 })
 
 var controller = new AbortController();
@@ -67,6 +75,12 @@ const fetchData = async () => {
     }
     if (fetchUserOwned.value) {
       urlEncoded.append("owner", userStore.username);
+    }
+    if (sortInfoRef.name) {
+      urlEncoded.append("name", sortInfoRef.name);
+    }
+    if (sortInfoRef.description) {
+      urlEncoded.append("description", sortInfoRef.description);
     }
     const response = await fetch(`/api/bands?${urlEncoded.toString()}`, { signal: controller.signal });
 
@@ -124,14 +138,14 @@ const bandDeleted = async (entry) => {
     <table>
       <thead>
         <tr>
-          <TableHead id='name' :sortInfo="sortInfoRef">Name</TableHead>
+          <TableHeadWithFilter id='name' :sortInfo="sortInfoRef">Name</TableHeadWithFilter>
           <TableHead id='coordinates.x' :sortInfo="sortInfoRef">Coord X</TableHead>
           <TableHead id='coordinates.y' :sortInfo="sortInfoRef">Coord Y</TableHead>
           <TableHead id='creationDate' :sortInfo="sortInfoRef">Creation Date</TableHead>
           <TableHead id='genre' :sortInfo="sortInfoRef">Genre</TableHead>
           <TableHead id='numberOfParticipants' :sortInfo="sortInfoRef">Number of Participants</TableHead>
           <TableHead id='singlesCount' :sortInfo="sortInfoRef">Singles Count</TableHead>
-          <TableHead id='description' :sortInfo="sortInfoRef">Description</TableHead>
+          <TableHeadWithFilter id='description' :sortInfo="sortInfoRef">Description</TableHeadWithFilter>
           <TableHead id='albumsCount' :sortInfo="sortInfoRef">Albums Count</TableHead>
           <TableHead id='establishmentDate' :sortInfo="sortInfoRef">Establishment Date</TableHead>
           <TableHead id='owner.username' :sortInfo="sortInfoRef">Owner Name</TableHead>

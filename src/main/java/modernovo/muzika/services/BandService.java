@@ -4,6 +4,12 @@ import jakarta.transaction.Transactional;
 import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.dto.MusicBandDTO;
 import modernovo.muzika.dto.StudioDTO;
+import modernovo.muzika.model.Album;
+import modernovo.muzika.model.MusicBand;
+import modernovo.muzika.model.Studio;
+import modernovo.muzika.model.specifications.AlbumSpecs;
+import modernovo.muzika.model.specifications.BandSpecs;
+import modernovo.muzika.model.specifications.StudioSpecs;
 import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.StudioRepository;
@@ -15,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -30,9 +38,7 @@ public class BandService {
     private final AlbumRepository albumRepository;
     private final StudioRepository studioRepository;
 
-    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator,
-                       AlbumDTOCreatorService albumCreator, StudioDTOCreatorService studioCreator, BandRepository bandRepository,
-                       AlbumRepository albumRepository, StudioRepository studioRepository) {
+    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, AlbumDTOCreatorService albumCreator, StudioDTOCreatorService studioCreator, BandRepository bandRepository, AlbumRepository albumRepository, StudioRepository studioRepository) {
         this.userRepo = userRepo;
         this.bandCreator = bandCreator;
         this.albumCreator = albumCreator;
@@ -43,55 +49,53 @@ public class BandService {
     }
 
     @Transactional
-    public Optional<Page<MusicBandDTO>> getBandsDTObyUsername(String username, Pageable p) {
-        var user = userRepo.findByUsername(username);
-        if (user.isPresent()) {
-            var bands = bandRepository.getMusicBandsByOwner(user.get(), p);
-            return Optional.of(bands.map(bandCreator::toDTO));
-        } else {
-            return Optional.empty();
+    public Optional<Page<MusicBandDTO>> getBandsDTO(String username, String nameLike, String descLike, Pageable p) {
+        Specification<MusicBand> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null : BandSpecs.nameLike(nameLike)).and(!StringUtils.hasLength(descLike) ? null : BandSpecs.descriptionLike(descLike));
+        if (StringUtils.hasLength(username)) {
+            var user = userRepo.findByUsername(username);
+            if (user.isEmpty()) {
+                return Optional.empty();
+            }
+            filters = filters.and(BandSpecs.ownerNameEquals(username));
         }
 
+        var bands = bandRepository.findAll(filters, p);
+        return Optional.of(bands.map(bandCreator::toDTO));
     }
 
-    @Transactional
-    public Page<MusicBandDTO> getBandsDTO(Pageable p) {
-        return bandRepository.findAll(p).map(bandCreator::toDTO);
-    }
 
     @Transactional
-    public Optional<Page<AlbumDTO>> getAlbumsDTObyUsername(String username, Pageable p) {
-        var user = userRepo.findByUsername(username);
-        if (user.isPresent()) {
-            var albums = albumRepository.getAlbumsByOwner(user.get(), p);
-            return Optional.of(albums.map(albumCreator::toDTO));
-        } else {
-            return Optional.empty();
+    public Optional<Page<AlbumDTO>> getAlbumsDTO(String username, String nameLike, Pageable p) {
+        Specification<Album> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null :
+                AlbumSpecs.nameLike(nameLike));
+        if (StringUtils.hasLength(username)) {
+            var user = userRepo.findByUsername(username);
+            if (user.isEmpty()) {
+                return Optional.empty();
+            }
+            filters = filters.and(AlbumSpecs.ownerNameEquals(username));
         }
 
+        var albums = albumRepository.findAll(filters, p);
+        return Optional.of(albums.map(albumCreator::toDTO));
     }
 
     @Transactional
-    public Page<AlbumDTO> getAlbumsDTO(Pageable p) {
-        return albumRepository.findAll(p).map(albumCreator::toDTO);
-    }
-
-
-    @Transactional
-    public Optional<Page<StudioDTO>> getStudiosDTObyUsername(String username, Pageable p) {
-        var user = userRepo.findByUsername(username);
-        if (user.isPresent()) {
-            var studios = studioRepository.getStudiosByOwner(user.get(), p);
-            return Optional.of(studios.map(studioCreator::toDTO));
-        } else {
-            return Optional.empty();
+    public Optional<Page<StudioDTO>> getStudiosDTO(String username, String nameLike, String addressLike, Pageable p) {
+        Specification<Studio> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null :
+                        StudioSpecs.nameLike(nameLike)).
+                and(!StringUtils.hasLength(addressLike) ? null :
+                        StudioSpecs.addressLike(addressLike));
+        if (StringUtils.hasLength(username)) {
+            var user = userRepo.findByUsername(username);
+            if (user.isEmpty()) {
+                return Optional.empty();
+            }
+            filters = filters.and(StudioSpecs.ownerNameEquals(username));
         }
 
-    }
-
-    @Transactional
-    public Page<StudioDTO> getStudiosDTO(Pageable p) {
-        return studioRepository.findAll(p).map(studioCreator::toDTO);
+        var studios = studioRepository.findAll(filters, p);
+        return Optional.of(studios.map(studioCreator::toDTO));
     }
 
 }
