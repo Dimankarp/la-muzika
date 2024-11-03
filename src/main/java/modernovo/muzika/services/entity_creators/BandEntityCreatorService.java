@@ -121,6 +121,7 @@ public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicB
         }
 
         var updatingEntity = fromDTOGeneral(dto);
+        updatingEntity.setId(entity.getId());
         updatingEntity.setOwner(entity.getOwner());
 
         if (dto.getBestAlbumId() != null) {
