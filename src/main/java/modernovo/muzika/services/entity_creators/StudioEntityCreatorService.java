@@ -1,6 +1,8 @@
 package modernovo.muzika.services.entity_creators;
 
+import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.dto.StudioDTO;
+import modernovo.muzika.model.Album;
 import modernovo.muzika.model.Studio;
 import modernovo.muzika.model.User;
 import modernovo.muzika.repositories.StudioRepository;
@@ -11,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 @Service
-public class StudioEntityCreatorService {
+public class StudioEntityCreatorService implements EntityCreator<Studio, StudioDTO> {
     private final StudioRepository studioRepository;
 
     StudioEntityCreatorService(StudioRepository studioRepository) {

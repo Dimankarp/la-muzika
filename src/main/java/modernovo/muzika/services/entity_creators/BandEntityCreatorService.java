@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 @Service
-public class BandEntityCreatorService {
+public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicBandDTO> {
 
     private final AlbumRepository albumRepository;
     private final StudioRepository studioRepository;
@@ -158,7 +158,7 @@ public class BandEntityCreatorService {
     Caller is used
      */
     @Transactional
-    public MusicBand fromDTORegularUpdate(MusicBandDTO dto, User caller) throws DTOConstraintViolationException {
+    public MusicBand fromDTOUpdate(MusicBandDTO dto, User caller) throws DTOConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Music band DTO is Null");
         if (dto.getId() == null) throw new DTOConstraintViolationException("FromDTOUpdate is called with null band id");
         if (dto.getOwnerId() == null)

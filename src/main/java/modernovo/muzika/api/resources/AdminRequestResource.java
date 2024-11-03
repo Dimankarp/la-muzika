@@ -62,11 +62,7 @@ public class AdminRequestResource {
         }
     }
 
-    @ExceptionHandler(IllegalServiceArgumentException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public @ResponseBody String handleIllegalServiceArgumentException(IllegalServiceArgumentException e) {
-        return e.getMessage();
-    }
+
 
 
 }

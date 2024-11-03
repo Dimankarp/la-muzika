@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "studio", schema = "public")
-public class Studio {
+public class Studio implements Ownable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

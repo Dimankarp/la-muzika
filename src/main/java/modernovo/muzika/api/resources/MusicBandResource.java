@@ -6,9 +6,7 @@ import modernovo.muzika.model.MusicBand;
 import modernovo.muzika.dto.MusicBandDTO;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.UserRepository;
-import modernovo.muzika.services.BandService;
-import modernovo.muzika.services.DTOConstraintViolationException;
-import modernovo.muzika.services.UserService;
+import modernovo.muzika.services.*;
 import modernovo.muzika.services.entity_creators.BandEntityCreatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,28 +25,20 @@ public class MusicBandResource {
 
     private final Logger logger = LoggerFactory.getLogger(MusicBandResource.class);
     private final BandEntityCreatorService entityCreatorService;
-    private final UserRepository userRepository;
     private final BandRepository bandRepository;
-    private final UserService userService;
     private final BandService bandService;
+    private final ResourceUtils resourceUtils;
 
-    MusicBandResource(final UserRepository userRepository, final BandService bandService, BandRepository bandRepository, BandEntityCreatorService entityCreatorService, UserService userService) {
-        this.userRepository = userRepository;
+    MusicBandResource(final BandService bandService, BandRepository bandRepository, BandEntityCreatorService entityCreatorService, ResourceUtils resourceUtils1) {
         this.bandService = bandService;
         this.bandRepository = bandRepository;
         this.entityCreatorService = entityCreatorService;
-        this.userService = userService;
+        this.resourceUtils = resourceUtils1;
     }
 
     @PostMapping(value = "")
-    public String postBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        var userOpt = userRepository.findByUsername(auth.getName());
-        if (userOpt.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return "Caller not found among users";
-        }
-        var owner = userOpt.get();
+    public String postBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) throws CallerIsNotAUser {
+        var owner = resourceUtils.getCaller();
         try {
             var band = entityCreatorService.fromDTONew(dto, owner);
             bandRepository.save(band);
@@ -61,18 +51,12 @@ public class MusicBandResource {
     }
 
     @PutMapping(value = "")
-    public String putBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        var userOpt = userRepository.findByUsername(auth.getName());
-        if (userOpt.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return "Caller not found among users";
-        }
-        var caller = userOpt.get();
+    public String putBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) throws CallerIsNotAUser {
+        var caller = resourceUtils.getCaller();
         try {
             MusicBand band;
             if (Objects.equals(caller.getId(), dto.getOwnerId())) {
-                band = entityCreatorService.fromDTORegularUpdate(dto, caller);
+                band = entityCreatorService.fromDTOUpdate(dto, caller);
             } else {
                 band = entityCreatorService.fromDTOAdminUpdate(dto, caller);
             }
@@ -92,7 +76,7 @@ public class MusicBandResource {
                                        @RequestParam(required = false) String name,
                                        @RequestParam(required = false) String description,
                                        HttpServletResponse response,
-                                       @PageableDefault(sort = {"name"}, value = 50) Pageable p) {
+                                       @PageableDefault(sort = {"name"}, value = 50) Pageable p) throws IllegalServiceArgumentException {
         var bandsOpt = bandService.getBandsDTO(owner, name, description, p);
         if (bandsOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);

@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 @Service
-public class AlbumEntityCreatorService {
+public class AlbumEntityCreatorService implements EntityCreator<Album, AlbumDTO> {
 
     private final AlbumRepository albumRepository;
 

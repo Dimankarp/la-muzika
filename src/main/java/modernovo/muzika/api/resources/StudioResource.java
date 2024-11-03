@@ -6,9 +6,7 @@ import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.dto.StudioDTO;
 import modernovo.muzika.repositories.StudioRepository;
 import modernovo.muzika.repositories.UserRepository;
-import modernovo.muzika.services.BandService;
-import modernovo.muzika.services.DTOConstraintViolationException;
-import modernovo.muzika.services.UserService;
+import modernovo.muzika.services.*;
 import modernovo.muzika.services.entity_creators.StudioEntityCreatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,28 +23,20 @@ public class StudioResource {
 
     private final Logger logger = LoggerFactory.getLogger(StudioResource.class);
     private final StudioEntityCreatorService entityCreatorService;
-    private final UserRepository userRepository;
-    private final BandService bandService;
+    private final StudioService studioService;
     private final StudioRepository studioRepository;
-    private final UserService userService;
+    private final ResourceUtils resourceUtils;
 
-    StudioResource(final UserRepository userRepository, final BandService bandService, StudioRepository studioRepository, StudioEntityCreatorService entityCreatorService, UserService userService) {
-        this.userRepository = userRepository;
-        this.bandService = bandService;
+    StudioResource(StudioService studioService, StudioRepository studioRepository, StudioEntityCreatorService entityCreatorService, UserService userService, ResourceUtils resourceUtils) {
+        this.studioService = studioService;
         this.studioRepository = studioRepository;
         this.entityCreatorService = entityCreatorService;
-        this.userService = userService;
+        this.resourceUtils = resourceUtils;
     }
 
     @PostMapping(value = "")
-    public String postStudio(@RequestBody StudioDTO dto, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        var userOpt = userRepository.findByUsername(auth.getName());
-        if (userOpt.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return "Caller not found among users";
-        }
-        var owner = userOpt.get();
+    public String postStudio(@RequestBody StudioDTO dto, HttpServletResponse response) throws CallerIsNotAUser {
+        var owner = resourceUtils.getCaller();
         try {
             var studio = entityCreatorService.fromDTONew(dto, owner);
             studioRepository.save(studio);
@@ -59,14 +49,8 @@ public class StudioResource {
     }
 
     @PutMapping(value = "")
-    public String putStudio(@RequestBody StudioDTO dto, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        var userOpt = userRepository.findByUsername(auth.getName());
-        if (userOpt.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return "Caller not found among users";
-        }
-        var caller = userOpt.get();
+    public String putStudio(@RequestBody StudioDTO dto, HttpServletResponse response) throws CallerIsNotAUser {
+        var caller = resourceUtils.getCaller();
         try {
             var studio = entityCreatorService.fromDTOUpdate(dto, caller);
             studioRepository.save(studio);
@@ -85,8 +69,8 @@ public class StudioResource {
                                       @RequestParam(required = false) String name,
                                       @RequestParam(required = false) String address,
                                       HttpServletResponse response,
-                                      @PageableDefault(sort = {"name"}, value = 50) Pageable p) {
-        var studioOpt = bandService.getStudiosDTO(owner, name, address, p);
+                                      @PageableDefault(sort = {"name"}, value = 50) Pageable p) throws IllegalServiceArgumentException {
+        var studioOpt = studioService.getStudiosDTO(owner, name, address, p);
         if (studioOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return null;

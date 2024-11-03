@@ -6,7 +6,7 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "music_band", schema = "public")
-public class MusicBand {
+public class MusicBand implements Ownable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
