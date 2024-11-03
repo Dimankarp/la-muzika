@@ -35,17 +35,21 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     private final Logger logger = LoggerFactory.getLogger(BandService.class);
     private final UserRepository userRepo;
     private final BandDTOCreatorService bandCreator;
+    private final BandEntityCreatorService bandEntityCreator;
     private final BandRepository bandRepository;
+    private final ResourceUtils resourceUtils;
 
-    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository,  ResourceUtils resourceUtils, BandEntityCreatorService bandEntityCreatorService) {
+    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository, BandEntityCreatorService bandEntityCreatorService, BandEntityCreatorService bandEntityCreator, ResourceUtils resourceUtils) {
         super(resourceUtils, bandRepository, bandEntityCreatorService);
         this.userRepo = userRepo;
         this.bandCreator = bandCreator;
         this.bandRepository = bandRepository;
+        this.bandEntityCreator = bandEntityCreator;
+        this.resourceUtils = resourceUtils;
     }
 
     @Transactional
-    public Optional<Page<MusicBandDTO>> getBandsDTO(String username, String nameLike, String descLike, Pageable p) throws IllegalServiceArgumentException {
+    public Page<MusicBandDTO> getBandsDTO(String username, String nameLike, String descLike, Pageable p) throws IllegalServiceArgumentException {
         Specification<MusicBand> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null : BandSpecs.nameLike(nameLike)).and(!StringUtils.hasLength(descLike) ? null : BandSpecs.descriptionLike(descLike));
         if (StringUtils.hasLength(username)) {
             var user = userRepo.findByUsername(username);
@@ -56,7 +60,19 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         }
 
         var bands = bandRepository.findAll(filters, p);
-        return Optional.of(bands.map(bandCreator::toDTO));
+        return bands.map(bandCreator::toDTO);
+    }
+
+    @Override
+    public void updateEntity(MusicBandDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
+        var caller = resourceUtils.getCaller();
+        MusicBand band;
+        if (Objects.equals(caller.getId(), dto.getOwnerId())) {
+            band = bandEntityCreator.fromDTOUpdate(dto, caller);
+        } else {
+            band = bandEntityCreator.fromDTOAdminUpdate(dto, caller);
+        }
+        bandRepository.save(band);
     }
 
 

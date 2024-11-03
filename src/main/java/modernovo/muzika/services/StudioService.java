@@ -36,7 +36,7 @@ public class StudioService extends EntityService<Studio, StudioDTO, Long> {
     }
 
     @Transactional
-    public Optional<Page<StudioDTO>> getStudiosDTO(String username, String nameLike, String addressLike, Pageable p) throws IllegalServiceArgumentException {
+    public Page<StudioDTO> getStudiosDTO(String username, String nameLike, String addressLike, Pageable p) throws IllegalServiceArgumentException {
         Specification<Studio> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null :
                         StudioSpecs.nameLike(nameLike)).
                 and(!StringUtils.hasLength(addressLike) ? null :
@@ -50,7 +50,7 @@ public class StudioService extends EntityService<Studio, StudioDTO, Long> {
         }
 
         var studios = studioRepository.findAll(filters, p);
-        return Optional.of(studios.map(studioCreator::toDTO));
+        return studios.map(studioCreator::toDTO);
     }
 
 }

@@ -4,71 +4,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import modernovo.muzika.model.MusicBand;
 import modernovo.muzika.dto.MusicBandDTO;
-import modernovo.muzika.repositories.BandRepository;
-import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.services.*;
-import modernovo.muzika.services.entity_creators.BandEntityCreatorService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
 
 @RestController()
 @RequestMapping("/api/bands")
-public class MusicBandResource {
+public class MusicBandResource extends RESTResource<MusicBand, MusicBandDTO, Long> {
 
-    private final Logger logger = LoggerFactory.getLogger(MusicBandResource.class);
-    private final BandEntityCreatorService entityCreatorService;
-    private final BandRepository bandRepository;
     private final BandService bandService;
-    private final ResourceUtils resourceUtils;
 
-    MusicBandResource(final BandService bandService, BandRepository bandRepository, BandEntityCreatorService entityCreatorService, ResourceUtils resourceUtils1) {
+    MusicBandResource(final BandService bandService) {
+        super(bandService);
         this.bandService = bandService;
-        this.bandRepository = bandRepository;
-        this.entityCreatorService = entityCreatorService;
-        this.resourceUtils = resourceUtils1;
     }
-
-    @PostMapping(value = "")
-    public String postBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) throws CallerIsNotAUser {
-        var owner = resourceUtils.getCaller();
-        try {
-            var band = entityCreatorService.fromDTONew(dto, owner);
-            bandRepository.save(band);
-
-        } catch (DTOConstraintViolationException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return "Bad DTO: " + e.getMessage();
-        }
-        return "Created";
-    }
-
-    @PutMapping(value = "")
-    public String putBand(@RequestBody MusicBandDTO dto, HttpServletResponse response) throws CallerIsNotAUser {
-        var caller = resourceUtils.getCaller();
-        try {
-            MusicBand band;
-            if (Objects.equals(caller.getId(), dto.getOwnerId())) {
-                band = entityCreatorService.fromDTOUpdate(dto, caller);
-            } else {
-                band = entityCreatorService.fromDTOAdminUpdate(dto, caller);
-            }
-            bandRepository.save(band);
-        } catch (DTOConstraintViolationException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return "Bad DTO: " + e.getMessage();
-        }
-
-        return "Updated";
-    }
-
 
     @GetMapping(value = "")
     @Transactional
@@ -77,31 +29,7 @@ public class MusicBandResource {
                                        @RequestParam(required = false) String description,
                                        HttpServletResponse response,
                                        @PageableDefault(sort = {"name"}, value = 50) Pageable p) throws IllegalServiceArgumentException {
-        var bandsOpt = bandService.getBandsDTO(owner, name, description, p);
-        if (bandsOpt.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return null;
-        } else {
-            return bandsOpt.get();
-        }
-    }
-
-    @DeleteMapping(value = "/{id}")
-    @Transactional
-    public String deleteBand(@PathVariable Long id, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        var bandOpt = bandRepository.findById(id);
-        if (bandOpt.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return "Failed to find band";
-        }
-        var band = bandOpt.get();
-        if (band.getOwner().getUsername().equals(auth.getName())) {
-            bandRepository.delete(band);
-            return "Deleted";
-        }
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        return "Unauthorized";
+        return bandService.getBandsDTO(owner, name, description, p);
     }
 
 
