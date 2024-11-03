@@ -1,22 +1,12 @@
 package modernovo.muzika.services;
 
 import jakarta.transaction.Transactional;
-import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.dto.MusicBandDTO;
-import modernovo.muzika.dto.StudioDTO;
-import modernovo.muzika.model.Album;
 import modernovo.muzika.model.MusicBand;
-import modernovo.muzika.model.Studio;
-import modernovo.muzika.model.specifications.AlbumSpecs;
 import modernovo.muzika.model.specifications.BandSpecs;
-import modernovo.muzika.model.specifications.StudioSpecs;
-import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.BandRepository;
-import modernovo.muzika.repositories.StudioRepository;
 import modernovo.muzika.repositories.UserRepository;
-import modernovo.muzika.services.dto_creators.AlbumDTOCreatorService;
 import modernovo.muzika.services.dto_creators.BandDTOCreatorService;
-import modernovo.muzika.services.dto_creators.StudioDTOCreatorService;
 import modernovo.muzika.services.entity_creators.BandEntityCreatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,12 +67,8 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
 
 
     @Transactional
-    public Optional<MusicBandDTO> removeBandByEstablishmentDate(String username, ZonedDateTime date) throws IllegalServiceArgumentException {
-        var userOpt = userRepo.findByUsername(username);
-        if (userOpt.isEmpty()) {
-            throw new IllegalServiceArgumentException("Username " + username + " not found");
-        }
-        var user = userOpt.get();
+    public Optional<MusicBandDTO> removeBandByEstablishmentDate(ZonedDateTime date) throws CallerIsNotAUser {
+        var user = resourceUtils.getCaller();
         return user.getBands().stream().filter((x) -> x.getEstablishmentDate().equals(date)).findAny().map(bandCreator::toDTO);
     }
 
@@ -99,24 +85,26 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     }
 
     @Transactional
-    public void addSingle(String username, Long bandId) throws IllegalServiceArgumentException {
-        var band = getBandByIdAndOwner(username, bandId);
+    public void addSingle(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
+        var band = getBandByIdAndOwner(bandId);
         band.setSinglesCount(band.getSinglesCount() + 1);
     }
 
     @Transactional
-    public void removeMember(String username, Long bandId) throws IllegalServiceArgumentException {
-        var band = getBandByIdAndOwner(username, bandId);
+    public void removeMember(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
+        var band = getBandByIdAndOwner(bandId);
         band.setNumberOfParticipants(band.getNumberOfParticipants() - 1);
     }
 
-    private MusicBand getBandByIdAndOwner(String username, Long bandId) throws IllegalServiceArgumentException {
+    @Transactional
+    private MusicBand getBandByIdAndOwner(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
+        var caller = resourceUtils.getCaller();
         var bandOpt = bandRepository.findById(bandId);
         if (bandOpt.isEmpty()) {
             throw new IllegalServiceArgumentException("Band " + bandId + " not found");
         }
         var band = bandOpt.get();
-        if (!Objects.equals(band.getOwner().getUsername(), username)) {
+        if (!Objects.equals(band.getOwner().getUsername(), caller.getUsername())) {
             throw new IllegalServiceArgumentException("Provided band doesn't belong to caller");
         }
         return band;

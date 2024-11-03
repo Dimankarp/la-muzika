@@ -1,14 +1,10 @@
-const DATE_FORMAT_OPTIONS = {
-    hour12: false,
-    localeMatcher: "lookup",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
-};
+export const toLocalDate = (date) => {
+    const temp = new Date(date)
+    temp.setMinutes(temp.getMinutes() - temp.getTimezoneOffset());
+    return temp.toISOString().slice(0, 16)
+}
 
-export function getDateFromTimestamp(timestamp){
-    return new Date(timestamp).toLocaleString(['en-US', 'ru-RU'], DATE_FORMAT_OPTIONS);
+export const fromLocalDate = (localDate) => {
+    const temp = new Date(localDate)
+    return temp.toISOString()
 }

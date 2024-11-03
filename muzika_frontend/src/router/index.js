@@ -7,6 +7,7 @@ import AlbumView from '@/views/AlbumView.vue'
 import StudioView from '@/views/StudioView.vue'
 import BandVisualiser from '@/components/BandVisualiser.vue'
 import AdminRequestTable from '@/components/AdminRequestTable.vue'
+import ActionsView from '@/views/ActionsView.vue'
 const routes = [
   {
     path: '/login',
@@ -40,6 +41,11 @@ const routes = [
     path: '/requests',
     name: 'requests',
     component: AdminRequestTable
+  },
+  {
+    path: '/actions',
+    name: 'actions',
+    component: ActionsView
   },
 
   {

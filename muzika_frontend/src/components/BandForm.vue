@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, computed, ref, watch, defineProps, defineEmits } from 'vue';
 import { userStore } from '@/js/store';
+import {toLocalDate, fromLocalDate} from '@/js/utils'
 
 const { isNew, updateBand } = defineProps({
     isNew: {
@@ -11,7 +12,7 @@ const { isNew, updateBand } = defineProps({
         type: Object,
         required: false,
         default: () => {
-            const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+            const today = new Date()
             return {
                 name: 'Generic Band',
                 coordX: 0,
@@ -22,9 +23,9 @@ const { isNew, updateBand } = defineProps({
                 description: 'A band',
                 albumsCount: 1,
                 adminOpen: false,
-                establishmentDate: today,
-                bestAlbum:undefined,
-                studio:undefined
+                establishmentDate: today.toISOString(),
+                bestAlbum: undefined,
+                studio: undefined
             };
         }
     }
@@ -32,7 +33,7 @@ const { isNew, updateBand } = defineProps({
 
 const emit = defineEmits(['formClosed', 'albumRequested']);
 console.log(updateBand.coordX);
-const band = reactive({ ...updateBand });
+const band = reactive({ ...updateBand, localEstablishmentDate: toLocalDate(updateBand.establishmentDate) });
 const errors = reactive({
     name: '',
     coordX: '',
@@ -43,7 +44,7 @@ const errors = reactive({
     description: '',
     albumsCount: '',
     adminOpen: '',
-    establishmentDate: ''
+    localEstablishmentDate: ''
 });
 
 const canEdit = computed(() => {
@@ -54,6 +55,7 @@ const canEdit = computed(() => {
     );
 });
 
+
 const validate = () => {
     errors.name = band.name ? '' : 'Band name is required';
     errors.coordX = band.coordX !== null ? '' : 'Coordinate X is required';
@@ -63,7 +65,7 @@ const validate = () => {
     errors.singlesCount = band.singlesCount >= 0 ? '' : 'Singles count must be non-negative';
     errors.albumsCount = band.albumsCount >= 0 ? '' : 'Albums count must be non-negative';
     errors.adminOpen = band.adminOpen !== null ? '' : 'Admin open status is required';
-    errors.establishmentDate = band.establishmentDate ? '' : 'Establishment date is required';
+    errors.localEstablishmentDate = band.localEstablishmentDate ? '' : 'Establishment date is required';
 };
 
 const hasErrors = computed(() => {
@@ -74,18 +76,16 @@ watch(band, validate, { deep: true });
 
 const handleSubmit = async () => {
     validate();
-    if(band.studio){
+    if (band.studio) {
         band.studioId = band.studio.id
     }
-    if(band.bestAlbum){
+    if (band.bestAlbum) {
         band.bestAlbumId = band.bestAlbum.id
     }
-
+    band.establishmentDate = fromLocalDate(band.localEstablishmentDate)
 
     if (!hasErrors.value) {
         if (isNew) {
-            const d2 = new Date();
-            band.establishmentDate = d2.toJSON();
             const response = await fetch("/api/bands", {
                 method: "POST",
                 credentials: "same-origin",
@@ -96,8 +96,6 @@ const handleSubmit = async () => {
             });
 
         } else {
-            const d2 = new Date();
-            band.establishmentDate = d2.toJSON();
             const response = await fetch("/api/bands", {
                 method: "PUT",
                 credentials: "same-origin",
@@ -111,12 +109,12 @@ const handleSubmit = async () => {
     }
 };
 
-const onAlbumRequested = ()=>{
-    emit('albumRequested', {...band})
+const onAlbumRequested = () => {
+    emit('albumRequested', { ...band })
 }
 
-const onStudioRequested = ()=>{
-    emit('studioRequested', {...band})
+const onStudioRequested = () => {
+    emit('studioRequested', { ...band })
 }
 </script>
 
@@ -182,9 +180,9 @@ span {
                 <span v-if="errors.adminOpen">{{ errors.adminOpen }}</span>
             </div>
             <div>
-                <label for="establishmentDate">Establishment Date:</label>
-                <input type="date" v-model="band.establishmentDate" :disabled="!canEdit" />
-                <span v-if="errors.establishmentDate">{{ errors.establishmentDate }}</span>
+                <label for="localEstablishmentDate">Establishment Date:</label>
+                <input type="datetime-local" v-model="band.localEstablishmentDate" :disabled="!canEdit" />
+                <span v-if="errors.localEstablishmentDate">{{ errors.localEstablishmentDate }}</span>
             </div>
             <div>
                 <h2>Album</h2>

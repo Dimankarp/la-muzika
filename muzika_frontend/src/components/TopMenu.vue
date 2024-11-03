@@ -90,6 +90,7 @@ onMounted(async () => {
     <button @click="navigateTo('bands')">Bands</button>
     <button @click="navigateTo('albums')">Albums</button>
     <button @click="navigateTo('studios')">Studios</button>
+    <button @click="navigateTo('actions')">Actions</button>
     <button v-if="userStore.isAdmin" @click="navigateTo('requests')">Admin Requests</button>
     <button @click="navigateTo('visual')">Visualization</button>
 
