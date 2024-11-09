@@ -9,6 +9,8 @@ const FETCH_INTERVAL_MS = 10000
 
 var interval;
 
+const { isSelectMode = false } = defineProps(['isSelectMode'])
+
 const emit = defineEmits(['newBandClicked', 'bandSelected'])
 const router = useRouter()
 const bands = ref([]);
@@ -155,7 +157,7 @@ const bandDeleted = async (entry) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="band in bands" :key="band.id" @click.prevent="emit('bandSelected', band)">
+        <tr v-for="band in bands" :key="band.id" @click.prevent="emit('bandUpdateSelected', band)">
           <td>{{ band.name }}</td>
           <td>{{ band.coordX }}</td>
           <td>{{ band.coordY }}</td>
@@ -170,11 +172,13 @@ const bandDeleted = async (entry) => {
           <td>{{ band.bestAlbum !== null ? band.bestAlbum.name : "-" }}</td>
           <td>{{ band.studio !== null ? band.studio.name : "-" }}</td>
           <td>
-            <button v-if="band.ownerId === userStore.userId" @click.stop="bandDeleted(band)">Delete</button>
+            <button v-if="!isSelectMode && band.ownerId === userStore.userId" @click.stop="bandDeleted(band)">Delete</button>
+            <button v-if="isSelectMode && band.ownerId === userStore.userId" @click.stop="emit('bandSelected', band)"> Select </button>
           </td>
         </tr>
       </tbody>
     </table>
+    <button v-if="isSelectMode" @click="emit('backPressed')">Back</button>
     <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>

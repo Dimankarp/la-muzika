@@ -2,17 +2,16 @@
 import { useRouter } from 'vue-router';
 import { userStore } from '@/js/store';
 import { onMounted, ref } from 'vue';
-
+import { logout } from '@/js/auth';
 const router = useRouter();
 const isPending = ref(false)
 const navigateTo = (route) => {
   router.push({ name: route });
 };
 
-console.log(userStore.isAdmin)
 
-const logout = () => {
-  userStore.logout()
+const onLogout = async () => {
+  await logout()
   router.replace('login')
 };
 
@@ -96,7 +95,7 @@ onMounted(async () => {
 
     <div class="user-info">
       <span>{{ userStore.username }} ({{ userStore.isAdmin ? 'Admin' : 'User' }})</span>
-      <button @click="logout">Logout</button>
+      <button @click="onLogout">Logout</button>
       <button v-if="!userStore.isAdmin" :disabled="isPending" @click="onRequestAdmin">RequestAdmin</button>
     </div>
   </div>

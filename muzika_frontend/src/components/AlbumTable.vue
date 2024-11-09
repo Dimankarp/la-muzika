@@ -11,7 +11,7 @@ var interval;
 
 const { isSelectMode = false } = defineProps(['isSelectMode'])
 
-const emit = defineEmits(['newAlbumClicked', 'albumSelected', 'updateAlbumSelected'])
+const emit = defineEmits(['newAlbumClicked', 'albumSelected', 'updateAlbumSelected', 'backPressed'])
 const albums = ref([]);
 const router = useRouter()
 const currentPage = ref(1);
@@ -157,6 +157,7 @@ const onAlbumDelete = async (entry) => {
         </tr>
       </tbody>
     </table>
+    <button v-if="isSelectMode" @click="emit('backPressed')">Back</button>
     <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>

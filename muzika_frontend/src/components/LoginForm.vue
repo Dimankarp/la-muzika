@@ -68,8 +68,11 @@ function login(event) {
           loginTitle.value = "Failed to fetch user data!"
       
       }
-      else if (response.status === 409) {
-        loginTitle.value = "User with such username doesn't exist!"
+      else if (response.status === 401) {
+        loginTitle.value = "Incorrect password or username"
+        submitButtonText.value = "Try again!"
+      } else{
+        loginTitle.value = "Something went wrong!"
       }
     }).catch((err) => {
       console.log(err)

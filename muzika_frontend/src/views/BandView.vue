@@ -5,10 +5,12 @@ import BandForm from "@/components/BandForm.vue";
 import AlbumView from "@/views/AlbumView.vue";
 import StudioView from "@/views/StudioView.vue";
 
+const { isSelectMode = false } = defineProps(['isSelectMode'])
+
 const component = shallowRef(BandTable)
 const cachedBand = ref({})
 const cachedIsNew = ref(false)
-const props = ref({})
+const props = ref({isSelectMode:isSelectMode})
 const onNewBandClicked = () => {
   props.value.isNew = true;
   component.value = BandForm
@@ -20,7 +22,7 @@ const onBandSelected = (band) => {
 }
 
 const onFormClosed = () => {
-  props.value = {};
+  props.value = {isSelectMode: isSelectMode};
   cachedBand.value = null;
   component.value = BandTable;
 }
@@ -52,9 +54,14 @@ const onStudioSelected = (studio) => {
   component.value = BandForm;
 }
 
+const onBackPressed = ()=>{
+  props.value = { isNew: cachedIsNew.value, updateBand: cachedBand.value }
+  component.value = BandForm;
+}
+
 </script>
 
 <template>
-  <component v-bind="{ ...props }" :is="component" @newBandClicked="onNewBandClicked" @bandSelected="onBandSelected"
-    @formClosed="onFormClosed" @albumSelected="onAlbumSelected" @albumRequested="onAlbumRequested" @studioSelected="onStudioSelected" @studioRequested="onStudioRequested"/>
+  <component v-bind="{ ...props }" :is="component" @newBandClicked="onNewBandClicked" @bandUpdateSelected="onBandSelected"
+    @formClosed="onFormClosed" @albumSelected="onAlbumSelected" @albumRequested="onAlbumRequested" @studioSelected="onStudioSelected" @studioRequested="onStudioRequested" @backPressed="onBackPressed"/>
 </template>

@@ -11,7 +11,7 @@ var interval;
 
 const { isSelectMode = false } = defineProps(['isSelectMode'])
 
-const emit = defineEmits(['newStudioClicked', 'studioSelected', 'updateStudioSelected'])
+const emit = defineEmits(['newStudioClicked', 'studioSelected', 'updateStudioSelected', 'backPressed'])
 const studios = ref([]);
 const router = useRouter()
 const currentPage = ref(1);
@@ -161,6 +161,7 @@ const onStudioDelete = async (entry) => {
         </tr>
       </tbody>
     </table>
+    <button v-if="isSelectMode" @click="emit('backPressed')">Back</button>
     <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>

@@ -4,7 +4,7 @@ import '@/scss/login.scss'
 
 import { ref } from "vue";
 import { usernameIsValid, passwordIsValid, passwordsMatch } from "@/js/input_validation.js"
-
+import { fetchUser } from '@/js/auth';
 const emit = defineEmits(['registrationSuccess'])
 
 const registerTitle = ref("Please, enter credentials to register!")
@@ -66,59 +66,46 @@ function register(event) {
     {
       method: "POST",
       body: urlEncoded,
-      headers: {
-              "Auth-Username" : username.value,
-              "Auth-Password" : password.value,
-            },
       credentials: "same-origin"
     }).then(async (response) => {
       if (response.ok) {
 
-      //  let loginSuccess = await fetch("/api/hellos",
-      //     {
-      //       method: "POST",
-      //       body: urlEncoded,
-      //       credentials: "same-origin"
-      //     }).then(async (response) => {
-      //       if (response.ok) {
+        let loginSuccess = await fetch("/api/auth/login",
+          {
+            method: "POST",
+            body: urlEncoded,
+            credentials: "same-origin"
+          }).then(async (response) => {
+            if (response.ok) {
+              return true;
+            }
+            else { return false; }
+          })
+        if (loginSuccess) {
 
-      //        let token = await response.text()
-      //         registerToken(token, username.value)
-      //         return true;
-      //       }
-      //       else { return false; }
-      //     })
-      //   if (loginSuccess) {
-      //     emit("registrationSuccess")
-      //   } else {
-      //     registerTitle.value = "Registered but couldn't login!"
-      //   }
-      console.log(response);
+          if (await fetchUser()) {
+            console.log("everytging is fine")
+            emit("registrationSuccess")
+          }
+          else
+            registerTitle.value = "Failed to fetch user data!"
+
+
+
+        } else {
+          registerTitle.value = "Registered but couldn't login!"
+        }
+        console.log(response);
       }
       else if (response.status === 409) {
         registerTitle.value = "User with such username is already registered!"
       }
     }).catch((err) => {
+      console.log(err)
       registerTitle.value = "Something went wrong!"
       submitButtonText.value = "Try again!"
     }).finally((res) => {
       formInProgress.value = false
-    })
-}
-
-function hellos(event){
-  fetch(`/api/users/${username.value}`,
-    {
-      method: "GET",
-      headers: {
-              "Auth-Username" : username.value,
-              "Auth-Password" : password.value,
-            },
-      credentials: "same-origin"
-    }).then(async (response) => {
-      if (response.ok) {
-        console.log(response);
-      }
     })
 }
 
@@ -148,6 +135,5 @@ function hellos(event){
       </div>
       <button @click.prevent="register">{{ submitButtonText }}</button>
     </form>
-    <button @click.prevent="hellos">"HELLO"</button>
   </div>
 </template>

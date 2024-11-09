@@ -4,15 +4,14 @@ import {useRouter} from 'vue-router'
 
 const router = useRouter()
 
-function redirectToShotPage(){
-    console.log("Redirecting to shopt page!")
-    router.push("table")
+function redirectToBandsPage(){
+    router.push("bands")
 }
 
 </script>
 
 <template>
-  <RegisterForm @registration-success="redirectToShotPage"/>
+  <RegisterForm @registration-success="redirectToBandsPage"/>
   <router-link to="login" class="login-link">
     or login! </router-link>
 </template>

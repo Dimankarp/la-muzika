@@ -66,7 +66,10 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
+  console.log("To" + to.name)
   if (to.name === 'login' || to.name === 'register' || to.name === 'not-found') {
+    console.log(userStore.username)
+    console.log(userStore.isLoggedIn)
     if (userStore.isLoggedIn) {
       console.log("Redirect to bands")
       return { name: 'bands' }
