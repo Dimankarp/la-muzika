@@ -20,7 +20,7 @@ public class AuditEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", insertable = false, updatable = false)
     private ZonedDateTime creationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)

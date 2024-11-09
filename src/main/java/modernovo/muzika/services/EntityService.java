@@ -17,10 +17,11 @@ public abstract class EntityService<T extends Ownable, TDTO, ID extends Serializ
         this.entityCreatorService = entityCreatorService;
     }
 
-    public void createEntity(TDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
+    public T createEntity(TDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
         var owner = resourceUtils.getCaller();
         var resource = entityCreatorService.fromDTONew(dto, owner);
         repository.save(resource);
+        return resource;
     }
 
     public void updateEntity(TDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {

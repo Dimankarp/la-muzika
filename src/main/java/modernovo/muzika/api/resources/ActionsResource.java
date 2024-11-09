@@ -43,13 +43,13 @@ public class ActionsResource {
     }
 
     @PostMapping("/addSingle")
-    void addSingle(@RequestBody Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
-        bandService.addSingle(bandId);
+    MusicBandDTO addSingle(@RequestBody Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
+        return bandService.addSingle(bandId);
     }
 
     @PostMapping("/removeMember")
-    void removeMember(@RequestBody Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
-        bandService.removeMember(bandId);
+    MusicBandDTO removeMember(@RequestBody Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
+        return bandService.removeMember(bandId);
     }
 
 

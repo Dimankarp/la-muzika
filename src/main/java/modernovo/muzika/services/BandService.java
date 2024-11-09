@@ -2,6 +2,7 @@ package modernovo.muzika.services;
 
 import jakarta.transaction.Transactional;
 import modernovo.muzika.dto.MusicBandDTO;
+import modernovo.muzika.model.ActionType;
 import modernovo.muzika.model.MusicBand;
 import modernovo.muzika.model.specifications.BandSpecs;
 import modernovo.muzika.repositories.BandRepository;
@@ -28,14 +29,16 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     private final BandEntityCreatorService bandEntityCreator;
     private final BandRepository bandRepository;
     private final ResourceUtils resourceUtils;
+    private final AuditService auditService;
 
-    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository, BandEntityCreatorService bandEntityCreatorService, BandEntityCreatorService bandEntityCreator, ResourceUtils resourceUtils) {
+    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository, BandEntityCreatorService bandEntityCreatorService, BandEntityCreatorService bandEntityCreator, ResourceUtils resourceUtils, AuditService auditService) {
         super(resourceUtils, bandRepository, bandEntityCreatorService);
         this.userRepo = userRepo;
         this.bandCreator = bandCreator;
         this.bandRepository = bandRepository;
         this.bandEntityCreator = bandEntityCreator;
         this.resourceUtils = resourceUtils;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -63,6 +66,14 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
             band = bandEntityCreator.fromDTOAdminUpdate(dto, caller);
         }
         bandRepository.save(band);
+        auditService.addEntry(caller, band, ActionType.UPDATE);
+    }
+
+    @Override
+    public MusicBand createEntity(MusicBandDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
+        var band = super.createEntity(dto);
+        auditService.addEntry(band.getOwner(), band, ActionType.CREATE);
+        return band;
     }
 
 
@@ -85,18 +96,22 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     }
 
     @Transactional
-    public void addSingle(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
+    public MusicBandDTO addSingle(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
         var band = getBandByIdAndOwner(bandId);
         band.setSinglesCount(band.getSinglesCount() + 1);
+        return bandCreator.toDTO(band);
     }
 
     @Transactional
-    public void removeMember(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
+    public MusicBandDTO removeMember(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
         var band = getBandByIdAndOwner(bandId);
+        if(band.getNumberOfParticipants()  <= 1){
+            throw new IllegalServiceArgumentException("Requested must always have at least one member");
+        }
         band.setNumberOfParticipants(band.getNumberOfParticipants() - 1);
+        return bandCreator.toDTO(band);
     }
 
-    @Transactional
     private MusicBand getBandByIdAndOwner(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
         var caller = resourceUtils.getCaller();
         var bandOpt = bandRepository.findById(bandId);
