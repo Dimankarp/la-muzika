@@ -8,6 +8,7 @@ import StudioView from '@/views/StudioView.vue'
 import BandVisualiser from '@/components/BandVisualiser.vue'
 import AdminRequestTable from '@/components/AdminRequestTable.vue'
 import ActionsView from '@/views/ActionsView.vue'
+import VisualiserView from '@/views/VisualiserView.vue'
 const routes = [
   {
     path: '/login',
@@ -51,7 +52,7 @@ const routes = [
   {
     path: '/visual',
     name: 'visual',
-    component: BandVisualiser
+    component: VisualiserView
   },
   {
     path: '/:pathMatch(.*)*',

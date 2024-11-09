@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onActivated, onDeactivated, onMounted, onUnmounted } from "vue";
+import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { userStore } from '@/js/store';
 import { useRouter } from "vue-router";
 import TableHead from "@/components/TableHead.vue"
@@ -9,7 +9,7 @@ const FETCH_INTERVAL_MS = 10000
 
 var interval;
 
-const { isSelectMode = false } = defineProps(['isSelectMode'])
+const { isSelectMode = false, isBackAllowed=false } = defineProps(['isSelectMode', 'isBackAllowed'])
 
 const emit = defineEmits(['newBandClicked', 'bandSelected'])
 const router = useRouter()
@@ -178,7 +178,7 @@ const bandDeleted = async (entry) => {
         </tr>
       </tbody>
     </table>
-    <button v-if="isSelectMode" @click="emit('backPressed')">Back</button>
+    <button v-if="isSelectMode || isBackAllowed" @click="emit('backPressed')">Back</button>
     <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>

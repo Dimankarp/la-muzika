@@ -5,12 +5,15 @@ import BandForm from "@/components/BandForm.vue";
 import AlbumView from "@/views/AlbumView.vue";
 import StudioView from "@/views/StudioView.vue";
 
-const { isSelectMode = false } = defineProps(['isSelectMode'])
+const { isSelectMode = false, isBackAllowed=false,  startFromUpdateBand = null } = defineProps(['isSelectMode', 'isBackAllowed', 'startFromUpdateBand' ])
 
 const component = shallowRef(BandTable)
 const cachedBand = ref({})
 const cachedIsNew = ref(false)
-const props = ref({isSelectMode:isSelectMode})
+const props = ref({isSelectMode:isSelectMode, isBackAllowed: isBackAllowed})
+
+
+
 const onNewBandClicked = () => {
   props.value.isNew = true;
   component.value = BandForm
@@ -21,8 +24,13 @@ const onBandSelected = (band) => {
   component.value = BandForm;
 }
 
+
+if(startFromUpdateBand){
+  onBandSelected(startFromUpdateBand)
+}
+
 const onFormClosed = () => {
-  props.value = {isSelectMode: isSelectMode};
+  props.value = {isSelectMode: isSelectMode, isBackAllowed:isBackAllowed};
   cachedBand.value = null;
   component.value = BandTable;
 }

@@ -6,22 +6,29 @@ import ColorHash from 'color-hash';
 const FETCH_INTERVAL_MS = 5000;
 
 var interval;
+const emit = defineEmits(['circleClicked'])
 
 const stageConfig = ref({
     width: window.innerWidth,
     height: window.innerHeight
 });
 
+
 const colorHash = new ColorHash();
 const getColorByOwner = (ownerName) => {
     return colorHash.hex(ownerName);
 };
 
+const scaleX = computed(() => stageConfig.value.width / (560 + 560));
+const scaleY = computed(() => stageConfig.value.height / (874 + 874));
+const handleCircleClick = (band) => {
+    emit('circleClicked', band)
+}
+
 const getCircleConfig = (band) => {
-    console.log(band.id, band.coordX, band.coordY)
     return {
-        x: band.coordX * scaleX.value,
-        y: band.coordY * scaleY.value,
+        x: (band.coordX * scaleX.value) + stageConfig.value.width / 2,
+        y: (band.coordY * scaleY.value) + stageConfig.value.height / 2,
         onClick: () => handleCircleClick(band),
         radius: 10,
         fill: getColorByOwner(band.ownerName),
@@ -30,13 +37,11 @@ const getCircleConfig = (band) => {
     };
 };
 
-const scaleX = computed(() => stageConfig.value.width / (1080))
-const scaleY = computed(() => stageConfig.value.height / (1688))
 
 const layerOffsetConfig = computed(() => {
     return {
-        offsetX: -540 * scaleX,
-        offsetY: -844 * scaleY,
+        offsetX: 0,
+        offsetY: 0,
     };
 });
 
@@ -114,31 +119,64 @@ const fetchData = async () => {
     }
 };
 
-const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-        fetchData();
-    }
+
+
+
+const tooltip = reactive({
+    visible: false,
+    band: null,
+    x: 0,
+    y: 0
+});
+
+const showTooltip = (band, event) => {
+
+    tooltip.visible = true;
+    tooltip.band = band;
+    tooltip.x = event.clientX;
+    tooltip.y = event.clientY;
+    console.log(tooltip)
 };
 
-const prevPage = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
-        fetchData();
-    }
+const hideTooltip = () => {
+    tooltip.visible = false;
 };
 
-const handleCircleClick = (band) => {
-    console.log(band.id)
-}
+const tooltipStyle = computed(() => ({
+    position: 'absolute',
+    top: `${tooltip.y}px`,
+    left: `${tooltip.x}px`,
+    backgroundColor: 'white',
+    border: '1px solid black',
+    padding: '5px',
+    pointerEvents: 'none'
+}));
+
 </script>
 
+
 <template>
-    <div>
+    <div class="stage">
+        <div v-if="tooltip.visible" :style="tooltipStyle">
+            <p>ID: {{ tooltip.band.id }}</p>
+            <p>Owner: {{ tooltip.band.ownerName }}</p>
+            <p>Coordinates: ({{ tooltip.band.coordX }}, {{ tooltip.band.coordY }})</p>
+        </div>
         <v-stage :config="stageConfig">
             <v-layer :config="layerOffsetConfig">
-                <v-circle v-for="band in bands" :key="band.id" :config="getCircleConfig(band)" />
+                <v-circle v-for="band in bands" :key="band.id" :config="getCircleConfig(band)"
+                    @mouseover="showTooltip(band, $event)" @mouseout="hideTooltip" />
             </v-layer>
         </v-stage>
     </div>
 </template>
+
+<style scoped>
+.tooltip {
+    z-index: 0;
+}
+.stage {
+    height: 600;
+    width: 600;
+}
+</style>
