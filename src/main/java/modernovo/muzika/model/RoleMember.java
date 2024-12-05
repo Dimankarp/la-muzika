@@ -3,7 +3,7 @@ package modernovo.muzika.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "role_member", schema = "public")
+@Table(name = "role_member")
 public class RoleMember {
 
     @Id

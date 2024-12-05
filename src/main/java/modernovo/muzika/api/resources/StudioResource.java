@@ -2,20 +2,12 @@ package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.dto.StudioDTO;
 import modernovo.muzika.model.Studio;
-import modernovo.muzika.repositories.StudioRepository;
-import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.services.*;
-import modernovo.muzika.services.entity_creators.StudioEntityCreatorService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()

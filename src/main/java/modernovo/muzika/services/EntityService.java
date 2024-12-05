@@ -1,7 +1,7 @@
 package modernovo.muzika.services;
 
 import modernovo.muzika.model.Ownable;
-import modernovo.muzika.services.entity_creators.EntityCreator;
+import modernovo.muzika.services.entity.creators.EntityCreator;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.io.Serializable;
 

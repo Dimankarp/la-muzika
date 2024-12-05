@@ -1,8 +1,6 @@
-package modernovo.muzika.services.entity_creators;
+package modernovo.muzika.services.entity.creators;
 
-import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.dto.StudioDTO;
-import modernovo.muzika.model.Album;
 import modernovo.muzika.model.Studio;
 import modernovo.muzika.model.User;
 import modernovo.muzika.repositories.StudioRepository;

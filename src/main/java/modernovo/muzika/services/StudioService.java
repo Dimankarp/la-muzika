@@ -1,25 +1,18 @@
 package modernovo.muzika.services;
 
 import jakarta.transaction.Transactional;
-import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.dto.StudioDTO;
-import modernovo.muzika.model.Album;
 import modernovo.muzika.model.Studio;
-import modernovo.muzika.model.specifications.AlbumSpecs;
 import modernovo.muzika.model.specifications.StudioSpecs;
-import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.StudioRepository;
 import modernovo.muzika.repositories.UserRepository;
-import modernovo.muzika.services.dto_creators.AlbumDTOCreatorService;
-import modernovo.muzika.services.dto_creators.StudioDTOCreatorService;
-import modernovo.muzika.services.entity_creators.StudioEntityCreatorService;
+import modernovo.muzika.services.dto.creators.StudioDTOCreatorService;
+import modernovo.muzika.services.entity.creators.StudioEntityCreatorService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.Optional;
 
 @Service
 public class StudioService extends EntityService<Studio, StudioDTO, Long> {

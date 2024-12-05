@@ -3,7 +3,7 @@ package modernovo.muzika.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "album", schema = "public")
+@Table(name = "album")
 public class Album implements Ownable {
 
     @Id

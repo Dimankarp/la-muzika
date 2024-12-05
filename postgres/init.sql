@@ -1,7 +1,7 @@
 \connect studs
 
 
-create table public.account
+create table account
 (
     id       bigint generated always as identity
         constraint id
@@ -17,29 +17,22 @@ create table public.account
 );
 
 comment
-    on column public.account.hash is 'SHA384 password hash in hex';
+    on column account.hash is 'SHA384 password hash in hex';
 
 
-alter table public.account
-    owner to muzika;
-
-
-
-create table public.studio
+create table studio
 (
     id       bigint generated always as identity
         constraint studio_pk
             primary key,
     name     varchar(255),
     address  text,
-    owner_id bigint references public.account
+    owner_id bigint references account
         on update cascade on delete cascade not null
 );
-alter table public.studio
-    owner to muzika;
 
 
-create table public.album
+create table album
 (
     id       bigint generated always as identity
         constraint album_pk
@@ -50,29 +43,25 @@ create table public.album
     tracks   integer
         constraint positive_tracks
             check (tracks > 0),
-    owner_id bigint references public.account
+    owner_id bigint references account
         on update cascade on delete cascade not null
 );
-alter table public.album
-    owner to muzika;
 
 
-create table public.role_member
+create table role_member
 (
     id        bigint generated always as identity primary key,
     member_id bigint      not null
         constraint member_fk
-            references public.account
+            references account
             on update cascade on delete cascade,
     role      varchar(50) not null,
     unique (member_id, role)
 );
 
-alter table public.role_member
-    owner to muzika;
 
 
-create table public.music_band
+create table music_band
 (
     id                     bigint generated always as identity primary key,
     name                   varchar(255)                                       not null
@@ -98,7 +87,7 @@ create table public.music_band
     description            text,
     best_album_id          bigint
         constraint album_fk
-            references public.album
+            references album
             on update cascade on delete set null,
     albums_count           bigint                                             not null
         constraint positive_albums
@@ -106,45 +95,36 @@ create table public.music_band
     establishment_date     timestamp with time zone                           not null,
     studio_id              bigint
         constraint studio_fk
-            references public.studio
+            references studio
             on update cascade on delete set null,
     admin_open             bool                     default false             not null,
-    owner_id               bigint references public.account
+    owner_id               bigint references account
         on update cascade on delete cascade                                   not null
 );
-alter table public.music_band
-    owner to muzika;
 
-
-create table public.audit
+create table audit
 (
     id            bigint generated always as identity primary key,
     creation_date timestamp with time zone default CURRENT_TIMESTAMP not null,
-    creator_id    bigint                                             references public.account
+    creator_id    bigint                                             references account
                                                                          on update cascade on delete set null,
     action_type   varchar(255)                                       not null
         constraint action_type_non_empty
             check (length((action_type)::text) > 0),
-    target_id     bigint references public.music_band
+    target_id     bigint references music_band
         on update cascade on delete cascade                          not null
 );
 
-alter table public.audit
-    owner to muzika;
 
 
-create table public.admin_requests
+create table admin_requests
 (
     id            bigint generated always as identity primary key,
     creation_date timestamp with time zone default CURRENT_TIMESTAMP not null,
-    user_id       bigint                                             references public.account
-                                                                         on update cascade on delete cascade,
+    user_id       bigint references account
+        on update cascade on delete cascade,
     status        varchar(255)             default 'PENDING'         not null
 );
-
-alter table public.audit
-    owner to muzika;
-
 
 
 

@@ -6,7 +6,7 @@ import modernovo.muzika.model.User;
 import modernovo.muzika.dto.UserDTO;
 import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.services.UserService;
-import modernovo.muzika.services.dto_creators.UserDTOCreatorService;
+import modernovo.muzika.services.dto.creators.UserDTOCreatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;

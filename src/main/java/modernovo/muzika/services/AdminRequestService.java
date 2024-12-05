@@ -1,13 +1,12 @@
 package modernovo.muzika.services;
 
 import modernovo.muzika.dto.AdminRequestDTO;
-import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.model.AdminRequest;
 import modernovo.muzika.model.AdminRequestStatus;
 import modernovo.muzika.model.Role;
 import modernovo.muzika.repositories.AdminRequestRepository;
 import modernovo.muzika.repositories.UserRepository;
-import modernovo.muzika.services.dto_creators.AdminRequestDTOCreatorService;
+import modernovo.muzika.services.dto.creators.AdminRequestDTOCreatorService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

@@ -2,7 +2,6 @@ package modernovo.muzika.security;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "music_band", schema = "public")
+@Table(name = "music_band")
 public class MusicBand implements Ownable {
 
     @Id

@@ -1,4 +1,4 @@
-package modernovo.muzika.services.entity_creators;
+package modernovo.muzika.services.entity.creators;
 
 import modernovo.muzika.dto.AlbumDTO;
 import modernovo.muzika.model.Album;

@@ -1,4 +1,4 @@
-package modernovo.muzika.services.dto_creators;
+package modernovo.muzika.services.dto.creators;
 
 import modernovo.muzika.dto.UserDTO;
 import modernovo.muzika.model.User;

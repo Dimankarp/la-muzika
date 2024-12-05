@@ -6,15 +6,13 @@ import modernovo.muzika.model.Album;
 import modernovo.muzika.model.specifications.AlbumSpecs;
 import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.UserRepository;
-import modernovo.muzika.services.dto_creators.AlbumDTOCreatorService;
-import modernovo.muzika.services.entity_creators.AlbumEntityCreatorService;
+import modernovo.muzika.services.dto.creators.AlbumDTOCreatorService;
+import modernovo.muzika.services.entity.creators.AlbumEntityCreatorService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.Optional;
 
 @Service
 public class AlbumService extends EntityService<Album, AlbumDTO, Long> {

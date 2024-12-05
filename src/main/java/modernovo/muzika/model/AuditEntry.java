@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "audit", schema = "public")
+@Table(name = "audit")
 public class AuditEntry {
 
     public AuditEntry(){}
