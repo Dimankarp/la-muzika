@@ -1,5 +1,6 @@
 \connect studs
 
+\i /docker-entrypoint-initdb.d/drop.sql
 
 create table account
 (
