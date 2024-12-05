@@ -1,7 +1,7 @@
 package modernovo.muzika.services;
 
 import jakarta.transaction.Transactional;
-import modernovo.muzika.dto.AlbumDTO;
+import modernovo.muzika.model.dto.AlbumDTO;
 import modernovo.muzika.model.Album;
 import modernovo.muzika.model.specifications.AlbumSpecs;
 import modernovo.muzika.repositories.AlbumRepository;

@@ -1,4 +1,4 @@
-package modernovo.muzika.dto;
+package modernovo.muzika.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import modernovo.muzika.model.AdminRequestStatus;

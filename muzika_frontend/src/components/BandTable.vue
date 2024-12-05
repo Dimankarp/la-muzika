@@ -127,6 +127,31 @@ const bandDeleted = async (entry) => {
 
 }
 
+const file = ref(null);
+
+const uploadFile = async () => {
+  console.log(file.value)
+  if (!file.value) return;
+
+  const formData = new FormData();
+  formData.append('file', file.value);
+
+  try {
+    const response = await fetch('api/bands/files', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      await fetchData();
+    } else {
+      console.error('Failed to upload file:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error uploading file:', error);
+  }
+};
+
 </script>
 
 <template>
@@ -183,6 +208,8 @@ const bandDeleted = async (entry) => {
     <span v-text="currentPage" />
     <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
     <button @click="emit('newBandClicked')">New</button>
+    <input type="file" @change="e => file = e.target.files[0]" accept=".yaml" />
+    <button @click="uploadFile">Upload YAML</button>
   </div>
 </template>
 
@@ -211,5 +238,9 @@ tbody tr:hover {
 
 button {
   margin: 10px;
+}
+
+input[type="file"] {
+  margin: 10px 0;
 }
 </style>

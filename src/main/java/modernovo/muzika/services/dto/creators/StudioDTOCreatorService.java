@@ -1,6 +1,6 @@
 package modernovo.muzika.services.dto.creators;
 
-import modernovo.muzika.dto.StudioDTO;
+import modernovo.muzika.model.dto.StudioDTO;
 import modernovo.muzika.model.Studio;
 import org.springframework.stereotype.Service;
 

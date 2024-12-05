@@ -1,6 +1,6 @@
 package modernovo.muzika.services.dto.creators;
 
-import modernovo.muzika.dto.AdminRequestDTO;
+import modernovo.muzika.model.dto.AdminRequestDTO;
 import modernovo.muzika.model.AdminRequest;
 import org.springframework.stereotype.Service;
 

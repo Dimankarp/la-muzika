@@ -2,7 +2,7 @@ package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import modernovo.muzika.dto.StudioDTO;
+import modernovo.muzika.model.dto.StudioDTO;
 import modernovo.muzika.model.Studio;
 import modernovo.muzika.services.*;
 import org.springframework.data.domain.Page;

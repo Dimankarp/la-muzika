@@ -1,7 +1,7 @@
 package modernovo.muzika.api.resources;
 
 import jakarta.transaction.Transactional;
-import modernovo.muzika.dto.AlbumDTO;
+import modernovo.muzika.model.dto.AlbumDTO;
 import modernovo.muzika.model.Album;
 import modernovo.muzika.services.*;
 import org.springframework.beans.factory.annotation.Autowired;

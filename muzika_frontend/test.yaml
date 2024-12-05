@@ -1,0 +1,65 @@
+bands:
+  - name: "The Rolling Stones"
+    coordX: 50.45
+    coordY: 30.52
+    genre: "ROCK"
+    numberOfParticipants: 4
+    singlesCount: 30
+    description: "An English rock band formed in London."
+    albumsCount: 25
+    establishmentDate: "1960-12-05T12:07:00.000Z"
+    adminOpen: true
+    bestAlbum:
+      name: "Sticky Fingers"
+      tracks: 10
+    studio:
+      name: "Olympic Studios"
+      address: "London, UK"
+  - name: "The Beatles"
+    coordX: 53.40
+    coordY: -2.98
+    genre: "ROCK"
+    numberOfParticipants: 4
+    singlesCount: 22
+    description: "An English rock band formed in Liverpool."
+    albumsCount: 13
+    establishmentDate: "1950-12-05T12:07:00.000Z"
+    adminOpen: true
+    bestAlbum:
+      name: "Abbey Road"
+      tracks: 17
+    studio:
+      name: "Abbey Road Studios"
+      address: "London, UK"
+  - name: "Led Zeppelin"
+    coordX: 51.51
+    coordY: -0.13
+    genre: "ROCK"
+    numberOfParticipants: 4
+    singlesCount: 16
+    description: "An English rock band formed in London."
+    albumsCount: 9
+    establishmentDate: "1968-09-07T12:07:00.000Z"
+    adminOpen: true
+    bestAlbum:
+      name: "Led Zeppelin IV"
+      tracks: 8
+    studio:
+      name: "Island Studios"
+      address: "London, UK"
+  - name: "Pink Floyd"
+    coordX: 51.51
+    coordY: -0.12
+    genre: "ROCK"
+    numberOfParticipants: 5
+    singlesCount: 27
+    description: "An English rock band formed in London."
+    albumsCount: 15
+    establishmentDate: "1965-03-01T12:07:00.000Z"
+    adminOpen: true
+    bestAlbum:
+      name: "The Dark Side of the Moon"
+      tracks: 10
+    studio:
+      name: "Abbey Road Studios"
+      address: "London, UK"

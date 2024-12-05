@@ -1,11 +1,15 @@
 package modernovo.muzika.configuration;
 
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import modernovo.muzika.services.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.io.IOException;
 
 @ControllerAdvice
 class GlobalControllerExceptionHandler {
@@ -37,5 +41,23 @@ class GlobalControllerExceptionHandler {
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public @ResponseBody String handleDTOConstraintViolation(DTOConstraintViolationException e) {
         return e.getMessage();
+    }
+
+    @ExceptionHandler(DatabindException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public @ResponseBody String handleDataBindException(DatabindException e) {
+        return "Failed to map objects from file to entities";
+    }
+
+    @ExceptionHandler(UnrecognizedPropertyException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public @ResponseBody String handleUnrecognizedProperty(UnrecognizedPropertyException e) {
+        return "Failed to recognize property";
+    }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public @ResponseBody String handleIOException(IOException e) {
+        return "Something happened to io";
     }
 }

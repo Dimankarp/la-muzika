@@ -1,6 +1,6 @@
 package modernovo.muzika.services;
 
-import modernovo.muzika.dto.AdminRequestDTO;
+import modernovo.muzika.model.dto.AdminRequestDTO;
 import modernovo.muzika.model.AdminRequest;
 import modernovo.muzika.model.AdminRequestStatus;
 import modernovo.muzika.model.Role;

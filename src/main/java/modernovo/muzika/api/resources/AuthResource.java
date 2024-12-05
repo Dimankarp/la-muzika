@@ -3,7 +3,7 @@ package modernovo.muzika.api.resources;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import modernovo.muzika.model.User;
-import modernovo.muzika.dto.UserDTO;
+import modernovo.muzika.model.dto.UserDTO;
 import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.services.UserService;
 import modernovo.muzika.services.dto.creators.UserDTOCreatorService;

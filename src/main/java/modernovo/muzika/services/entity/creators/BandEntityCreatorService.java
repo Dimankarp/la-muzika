@@ -1,6 +1,6 @@
 package modernovo.muzika.services.entity.creators;
 
-import modernovo.muzika.dto.MusicBandDTO;
+import modernovo.muzika.model.dto.MusicBandDTO;
 import modernovo.muzika.model.Coordinates;
 import modernovo.muzika.model.MusicBand;
 import modernovo.muzika.model.User;
@@ -18,15 +18,19 @@ import java.util.Objects;
 public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicBandDTO> {
 
     private final AlbumRepository albumRepository;
+    private final AlbumEntityCreatorService albumEntityCreator;
     private final StudioRepository studioRepository;
+    private final  StudioEntityCreatorService studioEntityCreator;
     private final BandRepository bandRepository;
     private final UserService userService;
 
-    BandEntityCreatorService(AlbumRepository albumRepository, StudioRepository studioRepository, BandRepository bandRepository, UserService userService) {
+    BandEntityCreatorService(AlbumRepository albumRepository, StudioRepository studioRepository, BandRepository bandRepository, UserService userService, AlbumEntityCreatorService albumEntityCreator, StudioEntityCreatorService studioEntityCreator) {
         this.albumRepository = albumRepository;
         this.studioRepository = studioRepository;
         this.bandRepository = bandRepository;
         this.userService = userService;
+        this.albumEntityCreator = albumEntityCreator;
+        this.studioEntityCreator = studioEntityCreator;
     }
 
 
@@ -52,6 +56,10 @@ public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicB
 
         if (dto.getEstablishmentDate() == null)
             throw new DTOConstraintViolationException("Music band must have an establishment date");
+
+        if (dto.getAdminOpen() == null)
+            throw new DTOConstraintViolationException("Music band must have an admin open status");
+
 
         var entity = new MusicBand();
 
@@ -84,6 +92,8 @@ public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicB
             else {
                 throw new DTOConstraintViolationException("Provided Album doesn't exist");
             }
+        } else if(dto.getBestAlbum() != null){
+            newEntity.setBestAlbum(albumEntityCreator.fromDTONew(dto.getBestAlbum(), owner));
         }
 
         if (dto.getStudioId() != null) {
@@ -96,6 +106,8 @@ public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicB
             else {
                 throw new DTOConstraintViolationException("Provided Studio doesn't exist");
             }
+        }else if(dto.getStudio() != null){
+            newEntity.setStudio(studioEntityCreator.fromDTONew(dto.getStudio(), owner));
         }
         return newEntity;
 

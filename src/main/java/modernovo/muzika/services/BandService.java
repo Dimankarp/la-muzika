@@ -1,7 +1,9 @@
 package modernovo.muzika.services;
 
 import jakarta.transaction.Transactional;
-import modernovo.muzika.dto.MusicBandDTO;
+import modernovo.muzika.model.User;
+import modernovo.muzika.model.dto.MusicBandBatchDTO;
+import modernovo.muzika.model.dto.MusicBandDTO;
 import modernovo.muzika.model.ActionType;
 import modernovo.muzika.model.MusicBand;
 import modernovo.muzika.model.specifications.BandSpecs;
@@ -17,7 +19,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -30,8 +36,11 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     private final BandRepository bandRepository;
     private final ResourceUtils resourceUtils;
     private final AuditService auditService;
+    private final YAMLService yamlService;
 
-    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository, BandEntityCreatorService bandEntityCreatorService, BandEntityCreatorService bandEntityCreator, ResourceUtils resourceUtils, AuditService auditService) {
+    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository,
+                       BandEntityCreatorService bandEntityCreatorService, BandEntityCreatorService bandEntityCreator,
+                       ResourceUtils resourceUtils, AuditService auditService, YAMLService yamlService) {
         super(resourceUtils, bandRepository, bandEntityCreatorService);
         this.userRepo = userRepo;
         this.bandCreator = bandCreator;
@@ -39,6 +48,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         this.bandEntityCreator = bandEntityCreator;
         this.resourceUtils = resourceUtils;
         this.auditService = auditService;
+        this.yamlService = yamlService;
     }
 
     @Transactional
@@ -70,10 +80,18 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     }
 
     @Override
+    @Transactional
     public MusicBand createEntity(MusicBandDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
-        var band = super.createEntity(dto);
-        auditService.addEntry(band.getOwner(), band, ActionType.CREATE);
-        return band;
+        var owner = resourceUtils.getCaller();
+        var entity = bandEntityCreator.fromDTONew(dto, owner);
+        return saveEntity(entity);
+    }
+
+    @Transactional
+    protected MusicBand saveEntity(MusicBand entity) {
+        MusicBand saved = bandRepository.save(entity);
+        auditService.addEntry(saved.getOwner(), saved, ActionType.CREATE);
+        return saved;
     }
 
 
@@ -105,11 +123,38 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     @Transactional
     public MusicBandDTO removeMember(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
         var band = getBandByIdAndOwner(bandId);
-        if(band.getNumberOfParticipants()  <= 1){
+        if (band.getNumberOfParticipants() <= 1) {
             throw new IllegalServiceArgumentException("Requested must always have at least one member");
         }
         band.setNumberOfParticipants(band.getNumberOfParticipants() - 1);
         return bandCreator.toDTO(band);
+    }
+
+    @Transactional
+    public List<MusicBand> createBatchEntitiesFromYAML(InputStream stream) throws IOException, CallerIsNotAUser, DTOConstraintViolationException {
+        var dtos = yamlService.parse(stream, MusicBandBatchDTO.class).getBands();
+        var caller = resourceUtils.getCaller();
+        var entities = batchDTONewToEntities(dtos, caller);
+        return batchSaveEntities(entities);
+    }
+
+    private List<MusicBand> batchDTONewToEntities(List<MusicBandDTO> dtos, User caller) throws DTOConstraintViolationException,
+            CallerIsNotAUser {
+        //Not using Stream API because of checked exception tragedy
+        List<MusicBand> entities = new ArrayList<>();
+        for (MusicBandDTO dto : dtos) {
+            entities.add(bandEntityCreator.fromDTONew(dto, caller));
+        }
+        return entities;
+    }
+
+    @Transactional
+    protected List<MusicBand> batchSaveEntities(List<MusicBand> entities) {
+        List<MusicBand> saved = new ArrayList<>();
+        for (MusicBand entity : entities) {
+            saved.add(saveEntity(entity));
+        }
+        return saved;
     }
 
     private MusicBand getBandByIdAndOwner(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
@@ -124,5 +169,6 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         }
         return band;
     }
+
 
 }

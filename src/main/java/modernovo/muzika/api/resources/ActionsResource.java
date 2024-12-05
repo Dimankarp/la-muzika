@@ -2,7 +2,7 @@ package modernovo.muzika.api.resources;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.servlet.http.HttpServletResponse;
-import modernovo.muzika.dto.MusicBandDTO;
+import modernovo.muzika.model.dto.MusicBandDTO;
 import modernovo.muzika.services.BandService;
 import modernovo.muzika.services.CallerIsNotAUser;
 import modernovo.muzika.services.IllegalServiceArgumentException;
