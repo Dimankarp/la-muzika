@@ -5,7 +5,7 @@ import modernovo.muzika.model.RequestStatus;
 
 import java.time.ZonedDateTime;
 
-public class AdminRequestDTO {
+public class BatchRequestDTO {
 
     private Long id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
@@ -13,6 +13,7 @@ public class AdminRequestDTO {
     private RequestStatus status;
     private String senderName;
     private Long senderId;
+    private Integer addedCount;
 
     public Long getId() {
         return id;
@@ -52,5 +53,13 @@ public class AdminRequestDTO {
 
     public void setSenderId(Long senderId) {
         this.senderId = senderId;
+    }
+
+    public Integer getAddedCount() {
+        return addedCount;
+    }
+
+    public void setAddedCount(Integer addedCount) {
+        this.addedCount = addedCount;
     }
 }

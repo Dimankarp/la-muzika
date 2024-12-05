@@ -91,6 +91,7 @@ onMounted(async () => {
     <button @click="navigateTo('studios')">Studios</button>
     <button @click="navigateTo('actions')">Actions</button>
     <button v-if="userStore.isAdmin" @click="navigateTo('requests')">Admin Requests</button>
+    <button @click="navigateTo('batches')">Batch Requests</button>
     <button @click="navigateTo('visual')">Visualization</button>
 
     <div class="user-info">

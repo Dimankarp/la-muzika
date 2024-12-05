@@ -5,10 +5,10 @@ import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "admin_request")
-public class AdminRequest {
+@Table(name = "batch_request")
+public class BatchRequest {
 
-    public AdminRequest() {
+    public BatchRequest() {
     }
 
     @Id
@@ -25,6 +25,9 @@ public class AdminRequest {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @JoinColumn(name = "added_count")
+    private Integer addedCount;
 
     public Long getId() {
         return id;
@@ -56,5 +59,13 @@ public class AdminRequest {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Integer getAddedCount() {
+        return addedCount;
+    }
+
+    public void setAddedCount(Integer addedCount) {
+        this.addedCount = addedCount;
     }
 }

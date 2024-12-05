@@ -1,6 +1,7 @@
 package modernovo.muzika.services;
 
 import jakarta.transaction.Transactional;
+import modernovo.muzika.model.RequestStatus;
 import modernovo.muzika.model.User;
 import modernovo.muzika.model.dto.MusicBandBatchDTO;
 import modernovo.muzika.model.dto.MusicBandDTO;
@@ -37,10 +38,12 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     private final ResourceUtils resourceUtils;
     private final AuditService auditService;
     private final YAMLService yamlService;
+    private final BatchRequestService batchRequestService;
 
     public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository,
                        BandEntityCreatorService bandEntityCreatorService, BandEntityCreatorService bandEntityCreator,
-                       ResourceUtils resourceUtils, AuditService auditService, YAMLService yamlService) {
+                       ResourceUtils resourceUtils, AuditService auditService, YAMLService yamlService,
+                       BatchRequestService batchRequestService) {
         super(resourceUtils, bandRepository, bandEntityCreatorService);
         this.userRepo = userRepo;
         this.bandCreator = bandCreator;
@@ -49,6 +52,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         this.resourceUtils = resourceUtils;
         this.auditService = auditService;
         this.yamlService = yamlService;
+        this.batchRequestService = batchRequestService;
     }
 
     @Transactional
@@ -132,10 +136,19 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
 
     @Transactional
     public List<MusicBand> createBatchEntitiesFromYAML(InputStream stream) throws IOException, CallerIsNotAUser, DTOConstraintViolationException {
-        var dtos = yamlService.parse(stream, MusicBandBatchDTO.class).getBands();
         var caller = resourceUtils.getCaller();
-        var entities = batchDTONewToEntities(dtos, caller);
-        return batchSaveEntities(entities);
+        var request = batchRequestService.createRequest(caller);
+        try {
+            var dtos = yamlService.parse(stream, MusicBandBatchDTO.class).getBands();
+            var entities = batchDTONewToEntities(dtos, caller);
+            var managedEntities = batchSaveEntities(entities);
+            request.setStatus(RequestStatus.ACCEPTED);
+            request.setAddedCount(entities.size());
+            return managedEntities;
+        } catch (Exception e) {
+            request.setStatus(RequestStatus.CANCELLED);
+            throw e;
+        }
     }
 
     private List<MusicBand> batchDTONewToEntities(List<MusicBandDTO> dtos, User caller) throws DTOConstraintViolationException,

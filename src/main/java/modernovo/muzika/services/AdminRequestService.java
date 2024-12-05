@@ -2,7 +2,7 @@ package modernovo.muzika.services;
 
 import modernovo.muzika.model.dto.AdminRequestDTO;
 import modernovo.muzika.model.AdminRequest;
-import modernovo.muzika.model.AdminRequestStatus;
+import modernovo.muzika.model.RequestStatus;
 import modernovo.muzika.model.Role;
 import modernovo.muzika.repositories.AdminRequestRepository;
 import modernovo.muzika.repositories.UserRepository;
@@ -30,7 +30,7 @@ public class AdminRequestService {
     }
 
     public Page<AdminRequestDTO> getPendingRequestsDTO(Pageable page) {
-        return adminRequestRepository.findAllByStatus(AdminRequestStatus.PENDING, page).map(dtoCreator::toDTO);
+        return adminRequestRepository.findAllByStatus(RequestStatus.PENDING, page).map(dtoCreator::toDTO);
     }
 
     @Transactional
@@ -38,9 +38,9 @@ public class AdminRequestService {
         var requestOpt = adminRequestRepository.findById(requestId);
         if (requestOpt.isPresent()) {
             var request = requestOpt.get();
-            if (request.getStatus() == AdminRequestStatus.PENDING) {
+            if (request.getStatus() == RequestStatus.PENDING) {
                 userService.addRole(request.getUser(), Role.ADMIN);
-                request.setStatus(AdminRequestStatus.ACCEPTED);
+                request.setStatus(RequestStatus.ACCEPTED);
             } else {
                 throw new IllegalServiceArgumentException("Request with provided id is not pending");
             }
@@ -54,10 +54,10 @@ public class AdminRequestService {
         var userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             var user = userOpt.get();
-            var requests = adminRequestRepository.findAllByUserAndStatus(user, AdminRequestStatus.PENDING);
+            var requests = adminRequestRepository.findAllByUserAndStatus(user, RequestStatus.PENDING);
             if (requests.isEmpty()) {
                 var req = new AdminRequest();
-                req.setStatus(AdminRequestStatus.PENDING);
+                req.setStatus(RequestStatus.PENDING);
                 req.setUser(user);
                 adminRequestRepository.save(req);
             } else{
@@ -73,7 +73,7 @@ public class AdminRequestService {
         var userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             var user = userOpt.get();
-            var requests = adminRequestRepository.findAllByUserAndStatus(user, AdminRequestStatus.PENDING);
+            var requests = adminRequestRepository.findAllByUserAndStatus(user, RequestStatus.PENDING);
             if(!requests.isEmpty()){
                 return Optional.of(dtoCreator.toDTO(requests.get(0)));
             }

@@ -116,15 +116,31 @@ create table audit
         on update cascade on delete cascade                          not null
 );
 
-
-
-create table admin_requests
+create table batch_request
 (
-    id            bigint generated always as identity primary key,
-    creation_date timestamp with time zone default CURRENT_TIMESTAMP not null,
-    user_id       bigint references account
+    id             bigint generated always as identity primary key,
+    creation_date  timestamp with time zone              default CURRENT_TIMESTAMP not null,
+    user_id        bigint       references account
+                                    on update cascade on delete set null,
+    request_status varchar(255) not null
+        constraint batch_request_enum
+            check (request_status in
+                   ('PENDING', 'ACCEPTED', 'CANCELLED')) default 'PENDING',
+    added_count    int
+);
+
+
+
+create table admin_request
+(
+    id             bigint generated always as identity primary key,
+    creation_date  timestamp with time zone              default CURRENT_TIMESTAMP not null,
+    user_id        bigint references account
         on update cascade on delete cascade,
-    status        varchar(255)             default 'PENDING'         not null
+    request_status varchar(255) not null
+        constraint admin_request_status
+            check (request_status in
+                   ('PENDING', 'ACCEPTED', 'CANCELLED')) default 'PENDING'
 );
 
 

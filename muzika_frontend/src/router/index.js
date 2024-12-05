@@ -9,6 +9,7 @@ import BandVisualiser from '@/components/BandVisualiser.vue'
 import AdminRequestTable from '@/components/AdminRequestTable.vue'
 import ActionsView from '@/views/ActionsView.vue'
 import VisualiserView from '@/views/VisualiserView.vue'
+import BatchRequestTable from '@/components/BatchRequestTable.vue'
 const routes = [
   {
     path: '/login',
@@ -42,6 +43,11 @@ const routes = [
     path: '/requests',
     name: 'requests',
     component: AdminRequestTable
+  },
+  {
+    path: '/batches',
+    name: 'batches',
+    component: BatchRequestTable
   },
   {
     path: '/actions',

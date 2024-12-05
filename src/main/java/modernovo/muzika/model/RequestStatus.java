@@ -1,6 +1,6 @@
 package modernovo.muzika.model;
 
-public enum AdminRequestStatus {
+public enum RequestStatus {
     PENDING,
     ACCEPTED,
     CANCELLED,
