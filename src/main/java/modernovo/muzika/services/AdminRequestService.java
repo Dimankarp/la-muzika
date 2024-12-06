@@ -7,6 +7,7 @@ import modernovo.muzika.model.Role;
 import modernovo.muzika.repositories.AdminRequestRepository;
 import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.services.dto.creators.AdminRequestDTOCreatorService;
+import modernovo.muzika.services.entity.constraints.AdminRequestConstraintsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,16 @@ public class AdminRequestService {
     private final UserService userService;
     private final AdminRequestDTOCreatorService dtoCreator;
     private final UserRepository userRepository;
+    private final AdminRequestConstraintsService adminRequestConstraintsService;
+    private final ResourceUtils resourceUtils;
 
-    public AdminRequestService(AdminRequestRepository adminRequestRepository, AdminRequestDTOCreatorService dtoCreator, UserService userService, UserRepository userRepository) {
+    public AdminRequestService(AdminRequestRepository adminRequestRepository, AdminRequestDTOCreatorService dtoCreator, UserService userService, UserRepository userRepository, AdminRequestConstraintsService adminRequestConstraintsService, ResourceUtils resourceUtils) {
         this.adminRequestRepository = adminRequestRepository;
         this.dtoCreator = dtoCreator;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.adminRequestConstraintsService = adminRequestConstraintsService;
+        this.resourceUtils = resourceUtils;
     }
 
     public Page<AdminRequestDTO> getPendingRequestsDTO(Pageable page) {
@@ -54,18 +59,24 @@ public class AdminRequestService {
         var userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             var user = userOpt.get();
-            var requests = adminRequestRepository.findAllByUserAndStatus(user, RequestStatus.PENDING);
-            if (requests.isEmpty()) {
+            if (!adminRequestConstraintsService.userHasPendingRequest(user)) {
                 var req = new AdminRequest();
                 req.setStatus(RequestStatus.PENDING);
                 req.setUser(user);
                 adminRequestRepository.save(req);
             } else{
-                throw new IllegalServiceArgumentException("A request with the provided username already exists");
+                throw new IllegalServiceArgumentException("A pending request with the provided username already " +
+                        "exists");
             }
         } else {
             throw new IllegalServiceArgumentException("Failed to find a user with the provided username");
         }
+    }
+
+    @Transactional
+    public Optional<AdminRequestDTO> getMyRequest() throws IllegalServiceArgumentException, CallerIsNotAUser {
+        var caller = resourceUtils.getCaller();
+        return getPending(caller.getUsername());
     }
 
     @Transactional

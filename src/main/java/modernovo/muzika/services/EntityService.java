@@ -3,6 +3,7 @@ package modernovo.muzika.services;
 import modernovo.muzika.model.Ownable;
 import modernovo.muzika.services.entity.creators.EntityCreator;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.io.Serializable;
 
 public abstract class EntityService<T extends Ownable, TDTO, ID extends Serializable> {
@@ -17,14 +18,14 @@ public abstract class EntityService<T extends Ownable, TDTO, ID extends Serializ
         this.entityCreatorService = entityCreatorService;
     }
 
-    public T createEntity(TDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
+    public T createEntity(TDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
         var owner = resourceUtils.getCaller();
         var resource = entityCreatorService.fromDTONew(dto, owner);
         repository.save(resource);
         return resource;
     }
 
-    public void updateEntity(TDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
+    public void updateEntity(TDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
         var caller = resourceUtils.getCaller();
         var resource = entityCreatorService.fromDTOUpdate(dto, caller);
         repository.save(resource);

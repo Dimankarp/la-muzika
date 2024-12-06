@@ -7,6 +7,7 @@ import modernovo.muzika.model.specifications.StudioSpecs;
 import modernovo.muzika.repositories.StudioRepository;
 import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.services.dto.creators.StudioDTOCreatorService;
+import modernovo.muzika.services.entity.constraints.StudioConstraintsService;
 import modernovo.muzika.services.entity.creators.StudioEntityCreatorService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,12 +21,14 @@ public class StudioService extends EntityService<Studio, StudioDTO, Long> {
     private final UserRepository userRepository;
     private final StudioRepository studioRepository;
     private final StudioDTOCreatorService studioCreator;
+    private final StudioConstraintsService studioConstraintsService;
 
-    public StudioService(UserRepository userRepository, StudioRepository studioRepository, StudioDTOCreatorService studioCreator, ResourceUtils resourceUtils, StudioEntityCreatorService studioEntityCreatorService) {
+    public StudioService(UserRepository userRepository, StudioRepository studioRepository, StudioDTOCreatorService studioCreator, ResourceUtils resourceUtils, StudioEntityCreatorService studioEntityCreatorService, StudioConstraintsService studioConstraintsService) {
         super(resourceUtils, studioRepository, studioEntityCreatorService);
         this.userRepository = userRepository;
         this.studioRepository = studioRepository;
         this.studioCreator = studioCreator;
+        this.studioConstraintsService = studioConstraintsService;
     }
 
     @Transactional
@@ -45,5 +48,4 @@ public class StudioService extends EntityService<Studio, StudioDTO, Long> {
         var studios = studioRepository.findAll(filters, p);
         return studios.map(studioCreator::toDTO);
     }
-
 }

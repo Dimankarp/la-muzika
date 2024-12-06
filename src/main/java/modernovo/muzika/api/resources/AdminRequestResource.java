@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import modernovo.muzika.model.dto.AdminRequestDTO;
 import modernovo.muzika.services.AdminRequestService;
+import modernovo.muzika.services.CallerIsNotAUser;
 import modernovo.muzika.services.IllegalServiceArgumentException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,9 +48,8 @@ public class AdminRequestResource {
 
     @GetMapping(value = "/pending")
     @Transactional
-    public AdminRequestDTO getMyRequest(HttpServletResponse response) throws IllegalServiceArgumentException {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        var pendingOpt = adminRequestService.getPending(auth.getName());
+    public AdminRequestDTO getMyRequest(HttpServletResponse response) throws IllegalServiceArgumentException, CallerIsNotAUser {
+        var pendingOpt = adminRequestService.getMyRequest();
         if (pendingOpt.isPresent()) {
             return pendingOpt.get();
         } else {
@@ -57,8 +57,6 @@ public class AdminRequestResource {
             return null;
         }
     }
-
-
 
 
 }

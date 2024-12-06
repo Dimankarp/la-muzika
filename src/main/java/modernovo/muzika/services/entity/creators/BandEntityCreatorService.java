@@ -8,6 +8,7 @@ import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.StudioRepository;
 import modernovo.muzika.services.DTOConstraintViolationException;
+import modernovo.muzika.services.EntityConstraintViolationException;
 import modernovo.muzika.services.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,7 +79,7 @@ public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicB
 
 
     @Transactional
-    public MusicBand fromDTONew(MusicBandDTO dto, User owner) throws DTOConstraintViolationException {
+    public MusicBand fromDTONew(MusicBandDTO dto, User owner) throws DTOConstraintViolationException, EntityConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Music band DTO is Null");
         var newEntity = fromDTOGeneral(dto);
         newEntity.setOwner(owner);

@@ -43,6 +43,13 @@ class GlobalControllerExceptionHandler {
         return e.getMessage();
     }
 
+    @ExceptionHandler(EntityConstraintViolationException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public @ResponseBody String handleEntityConstraintViolation(EntityConstraintViolationException e) {
+        return e.getMessage();
+    }
+
+
     @ExceptionHandler(DatabindException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public @ResponseBody String handleDataBindException(DatabindException e) {

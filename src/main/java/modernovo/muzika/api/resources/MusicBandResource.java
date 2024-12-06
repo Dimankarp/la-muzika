@@ -37,7 +37,7 @@ public class MusicBandResource extends RESTResource<MusicBand, MusicBandDTO, Lon
 
     @PostMapping(value = "/files")
     @Transactional
-    public String uploadBandsYAML(@RequestParam("file") MultipartFile file) throws IOException, DTOConstraintViolationException, CallerIsNotAUser {
+    public String uploadBandsYAML(@RequestParam("file") MultipartFile file) throws IOException, DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
         var entities = bandService.createBatchEntitiesFromYAML(file.getInputStream());
         return String.format("Created %d bands", entities.size());
     }

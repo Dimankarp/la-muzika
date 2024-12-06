@@ -5,6 +5,8 @@ import modernovo.muzika.model.Studio;
 import modernovo.muzika.model.User;
 import modernovo.muzika.repositories.StudioRepository;
 import modernovo.muzika.services.DTOConstraintViolationException;
+import modernovo.muzika.services.EntityConstraintViolationException;
+import modernovo.muzika.services.entity.constraints.StudioConstraintsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,23 +15,29 @@ import java.util.Objects;
 @Service
 public class StudioEntityCreatorService implements EntityCreator<Studio, StudioDTO> {
     private final StudioRepository studioRepository;
+    private final StudioConstraintsService studioConstraintsService;
 
-    StudioEntityCreatorService(StudioRepository studioRepository) {
+    StudioEntityCreatorService(StudioRepository studioRepository, StudioConstraintsService studioConstraintsService) {
         this.studioRepository = studioRepository;
+        this.studioConstraintsService = studioConstraintsService;
     }
 
-    private Studio fromDTOGeneral(StudioDTO dto) throws DTOConstraintViolationException {
+    @Transactional
+    private Studio fromDTOGeneral(StudioDTO dto) throws DTOConstraintViolationException, EntityConstraintViolationException {
         if (dto.getName() == null || dto.getName().isEmpty())
             throw new DTOConstraintViolationException("Album Name must be non empty");
         var entity = new Studio();
 
         entity.setName(dto.getName());
         entity.setAddress(dto.getAddress());
+        if(!studioConstraintsService.uniqueNameAndAddress(entity)){
+            throw new EntityConstraintViolationException("Unique name & address constraint broken");
+        }
         return entity;
     }
 
     @Transactional
-    public Studio fromDTONew(StudioDTO dto, User owner) throws DTOConstraintViolationException {
+    public Studio fromDTONew(StudioDTO dto, User owner) throws DTOConstraintViolationException, EntityConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
         var newEntity = fromDTOGeneral(dto);
         newEntity.setOwner(owner);
@@ -38,7 +46,7 @@ public class StudioEntityCreatorService implements EntityCreator<Studio, StudioD
     }
 
     @Transactional
-    public Studio fromDTOUpdate(StudioDTO dto, User caller) throws DTOConstraintViolationException {
+    public Studio fromDTOUpdate(StudioDTO dto, User caller) throws DTOConstraintViolationException, EntityConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
         if (dto.getId() == null)
             throw new DTOConstraintViolationException("FromDTOUpdate is called with null studio id");

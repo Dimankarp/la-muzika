@@ -109,7 +109,6 @@ const prevPage = () => {
           <TableHead id='owner.username' :sortInfo="sortInfoRef">Sender Name</TableHead>
           <TableHead id='status' :sortInfo="sortInfoRef">Status</TableHead>
           <TableHead id='addedCount' :sortInfo="sortInfoRef">Added Count</TableHead>
-          <th>Actions</th>
         </tr>
       </thead>
       <tbody>

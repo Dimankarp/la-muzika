@@ -21,13 +21,13 @@ public abstract class RESTResource<T extends Ownable, TDTO, ID extends Serializa
     }
 
     @PostMapping(value = "")
-    public String postResource(@RequestBody TDTO dto, HttpServletResponse response) throws CallerIsNotAUser, DTOConstraintViolationException {
+    public String postResource(@RequestBody TDTO dto, HttpServletResponse response) throws CallerIsNotAUser, DTOConstraintViolationException, EntityConstraintViolationException {
         entityService.createEntity(dto);
         return "Created";
     }
 
     @PutMapping(value = "")
-    public String putResource(@RequestBody TDTO dto, HttpServletResponse response) throws CallerIsNotAUser, DTOConstraintViolationException {
+    public String putResource(@RequestBody TDTO dto, HttpServletResponse response) throws CallerIsNotAUser, DTOConstraintViolationException, EntityConstraintViolationException {
         entityService.updateEntity(dto);
         return "Updated";
     }

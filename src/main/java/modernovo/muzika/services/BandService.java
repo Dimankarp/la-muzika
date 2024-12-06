@@ -85,7 +85,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
 
     @Override
     @Transactional
-    public MusicBand createEntity(MusicBandDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
+    public MusicBand createEntity(MusicBandDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
         var owner = resourceUtils.getCaller();
         var entity = bandEntityCreator.fromDTONew(dto, owner);
         return saveEntity(entity);
@@ -135,7 +135,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     }
 
     @Transactional
-    public List<MusicBand> createBatchEntitiesFromYAML(InputStream stream) throws IOException, CallerIsNotAUser, DTOConstraintViolationException {
+    public List<MusicBand> createBatchEntitiesFromYAML(InputStream stream) throws IOException, CallerIsNotAUser, DTOConstraintViolationException, EntityConstraintViolationException {
         var caller = resourceUtils.getCaller();
         var request = batchRequestService.createRequest(caller);
         try {
@@ -152,7 +152,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     }
 
     private List<MusicBand> batchDTONewToEntities(List<MusicBandDTO> dtos, User caller) throws DTOConstraintViolationException,
-            CallerIsNotAUser {
+            CallerIsNotAUser, EntityConstraintViolationException {
         //Not using Stream API because of checked exception tragedy
         List<MusicBand> entities = new ArrayList<>();
         for (MusicBandDTO dto : dtos) {
