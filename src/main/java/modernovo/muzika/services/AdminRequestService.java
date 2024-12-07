@@ -11,6 +11,7 @@ import modernovo.muzika.services.entity.constraints.AdminRequestConstraintsServi
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -38,7 +39,7 @@ public class AdminRequestService {
         return adminRequestRepository.findAllByStatus(RequestStatus.PENDING, page).map(dtoCreator::toDTO);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void acceptRequset(Long requestId) throws IllegalServiceArgumentException{
         var requestOpt = adminRequestRepository.findById(requestId);
         if (requestOpt.isPresent()) {
@@ -54,7 +55,7 @@ public class AdminRequestService {
         }
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void createRequest(String username) throws IllegalServiceArgumentException{
         var userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
@@ -73,13 +74,13 @@ public class AdminRequestService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Optional<AdminRequestDTO> getMyRequest() throws IllegalServiceArgumentException, CallerIsNotAUser {
         var caller = resourceUtils.getCaller();
         return getPending(caller.getUsername());
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Optional<AdminRequestDTO> getPending(String username) throws IllegalServiceArgumentException{
         var userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {

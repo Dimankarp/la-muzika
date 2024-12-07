@@ -1,6 +1,6 @@
 package modernovo.muzika.security;
 
-import jakarta.transaction.Transactional;
+
 import modernovo.muzika.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -22,7 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.debug("Loaded user by username {}", username);
         var userOpt = userRepository.findByUsername(username);

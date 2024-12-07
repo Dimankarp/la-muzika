@@ -1,6 +1,5 @@
 package modernovo.muzika.services;
 
-import jakarta.transaction.Transactional;
 import modernovo.muzika.model.dto.AlbumDTO;
 import modernovo.muzika.model.Album;
 import modernovo.muzika.model.specifications.AlbumSpecs;
@@ -12,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -30,7 +31,7 @@ public class AlbumService extends EntityService<Album, AlbumDTO, Long> {
         this.albumDTOCreator = albumDTOCreator;
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Page<AlbumDTO> getAlbumsDTO(String username, String nameLike, Pageable p) throws IllegalServiceArgumentException {
         Specification<Album> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null :
                 AlbumSpecs.nameLike(nameLike));

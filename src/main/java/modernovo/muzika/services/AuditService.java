@@ -8,6 +8,8 @@ import modernovo.muzika.repositories.AuditEntryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuditService {
@@ -17,7 +19,7 @@ public class AuditService {
     public AuditService(AuditEntryRepository auditEntryRepository) {
         this.auditEntryRepository = auditEntryRepository;
     }
-
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void addEntry(User creator, MusicBand target, ActionType action){
         var entry = new AuditEntry(creator, target, action);
         logger.debug("Adding new entry {}", entry);

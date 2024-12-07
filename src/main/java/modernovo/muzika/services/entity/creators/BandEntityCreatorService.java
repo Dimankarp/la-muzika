@@ -11,6 +11,7 @@ import modernovo.muzika.services.DTOConstraintViolationException;
 import modernovo.muzika.services.EntityConstraintViolationException;
 import modernovo.muzika.services.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
@@ -78,7 +79,7 @@ public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicB
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public MusicBand fromDTONew(MusicBandDTO dto, User owner) throws DTOConstraintViolationException, EntityConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Music band DTO is Null");
         var newEntity = fromDTOGeneral(dto);
@@ -114,7 +115,7 @@ public class BandEntityCreatorService implements EntityCreator<MusicBand, MusicB
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public MusicBand fromDTOAdminUpdate(MusicBandDTO dto, User caller) throws DTOConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Music band DTO is Null");
         if (!userService.hasAdminRights(caller)) throw new IllegalArgumentException("Caller doesn't have admin rights");

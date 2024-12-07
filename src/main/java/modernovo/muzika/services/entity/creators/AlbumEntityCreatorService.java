@@ -6,6 +6,7 @@ import modernovo.muzika.model.User;
 import modernovo.muzika.repositories.AlbumRepository;
 import modernovo.muzika.services.DTOConstraintViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
@@ -34,7 +35,6 @@ public class AlbumEntityCreatorService implements EntityCreator<Album, AlbumDTO>
         return entity;
     }
 
-    @Transactional
     public Album fromDTONew(AlbumDTO dto, User owner) throws DTOConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Album DTO is Null");
         var newEntity = fromDTOGeneral(dto);
@@ -43,7 +43,7 @@ public class AlbumEntityCreatorService implements EntityCreator<Album, AlbumDTO>
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Album fromDTOUpdate(AlbumDTO dto, User caller) throws DTOConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Album DTO is Null");
         if (dto.getId() == null)

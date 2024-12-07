@@ -1,6 +1,5 @@
 package modernovo.muzika.services;
 
-import jakarta.transaction.Transactional;
 import modernovo.muzika.model.dto.StudioDTO;
 import modernovo.muzika.model.Studio;
 import modernovo.muzika.model.specifications.StudioSpecs;
@@ -13,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -31,7 +32,7 @@ public class StudioService extends EntityService<Studio, StudioDTO, Long> {
         this.studioConstraintsService = studioConstraintsService;
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Page<StudioDTO> getStudiosDTO(String username, String nameLike, String addressLike, Pageable p) throws IllegalServiceArgumentException {
         Specification<Studio> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null :
                         StudioSpecs.nameLike(nameLike)).
@@ -47,5 +48,16 @@ public class StudioService extends EntityService<Studio, StudioDTO, Long> {
 
         var studios = studioRepository.findAll(filters, p);
         return studios.map(studioCreator::toDTO);
+    }
+
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Studio createEntity(StudioDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
+        return super.createEntity(dto);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public void updateEntity(StudioDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
+        super.updateEntity(dto);
     }
 }

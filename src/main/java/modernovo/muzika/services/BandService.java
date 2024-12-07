@@ -1,6 +1,6 @@
 package modernovo.muzika.services;
 
-import jakarta.transaction.Transactional;
+
 import modernovo.muzika.model.RequestStatus;
 import modernovo.muzika.model.User;
 import modernovo.muzika.model.dto.MusicBandBatchDTO;
@@ -18,6 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -55,7 +57,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         this.batchRequestService = batchRequestService;
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Page<MusicBandDTO> getBandsDTO(String username, String nameLike, String descLike, Pageable p) throws IllegalServiceArgumentException {
         Specification<MusicBand> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null : BandSpecs.nameLike(nameLike)).and(!StringUtils.hasLength(descLike) ? null : BandSpecs.descriptionLike(descLike));
         if (StringUtils.hasLength(username)) {
@@ -71,6 +73,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateEntity(MusicBandDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser {
         var caller = resourceUtils.getCaller();
         MusicBand band;
@@ -84,14 +87,14 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public MusicBand createEntity(MusicBandDTO dto) throws DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
         var owner = resourceUtils.getCaller();
         var entity = bandEntityCreator.fromDTONew(dto, owner);
         return saveEntity(entity);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     protected MusicBand saveEntity(MusicBand entity) {
         MusicBand saved = bandRepository.save(entity);
         auditService.addEntry(saved.getOwner(), saved, ActionType.CREATE);
@@ -99,32 +102,32 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Optional<MusicBandDTO> removeBandByEstablishmentDate(ZonedDateTime date) throws CallerIsNotAUser {
         var user = resourceUtils.getCaller();
         return user.getBands().stream().filter((x) -> x.getEstablishmentDate().equals(date)).findAny().map(bandCreator::toDTO);
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Long sumAllAlbums() {
         var bands = bandRepository.findAll();
         return bands.stream().map(MusicBand::getAlbumsCount).reduce(0L, Long::sum);
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Long countAllWithAlbumsCount(Long albumsCount) {
         var bands = bandRepository.findAll();
         return bands.stream().map(MusicBand::getAlbumsCount).filter((x) -> x.equals(albumsCount)).count();
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public MusicBandDTO addSingle(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
         var band = getBandByIdAndOwner(bandId);
         band.setSinglesCount(band.getSinglesCount() + 1);
         return bandCreator.toDTO(band);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public MusicBandDTO removeMember(Long bandId) throws IllegalServiceArgumentException, CallerIsNotAUser {
         var band = getBandByIdAndOwner(bandId);
         if (band.getNumberOfParticipants() <= 1) {
@@ -134,7 +137,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         return bandCreator.toDTO(band);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<MusicBand> createBatchEntitiesFromYAML(InputStream stream) throws IOException, CallerIsNotAUser, DTOConstraintViolationException, EntityConstraintViolationException {
         var caller = resourceUtils.getCaller();
         var request = batchRequestService.createRequest(caller);
@@ -161,7 +164,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         return entities;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     protected List<MusicBand> batchSaveEntities(List<MusicBand> entities) {
         List<MusicBand> saved = new ArrayList<>();
         for (MusicBand entity : entities) {

@@ -8,6 +8,7 @@ import modernovo.muzika.services.DTOConstraintViolationException;
 import modernovo.muzika.services.EntityConstraintViolationException;
 import modernovo.muzika.services.entity.constraints.StudioConstraintsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class StudioEntityCreatorService implements EntityCreator<Studio, StudioD
         this.studioConstraintsService = studioConstraintsService;
     }
 
-    @Transactional
+
     private Studio fromDTOGeneral(StudioDTO dto) throws DTOConstraintViolationException, EntityConstraintViolationException {
         if (dto.getName() == null || dto.getName().isEmpty())
             throw new DTOConstraintViolationException("Album Name must be non empty");
@@ -36,7 +37,6 @@ public class StudioEntityCreatorService implements EntityCreator<Studio, StudioD
         return entity;
     }
 
-    @Transactional
     public Studio fromDTONew(StudioDTO dto, User owner) throws DTOConstraintViolationException, EntityConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
         var newEntity = fromDTOGeneral(dto);
@@ -45,7 +45,7 @@ public class StudioEntityCreatorService implements EntityCreator<Studio, StudioD
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Studio fromDTOUpdate(StudioDTO dto, User caller) throws DTOConstraintViolationException, EntityConstraintViolationException {
         if (dto == null) throw new DTOConstraintViolationException("Studio DTO is Null");
         if (dto.getId() == null)

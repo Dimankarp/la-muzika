@@ -5,6 +5,8 @@ import modernovo.muzika.model.Studio;
 import modernovo.muzika.model.User;
 import modernovo.muzika.repositories.StudioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
@@ -18,7 +20,7 @@ public class StudioConstraintsService {
         this.studioRepository = studioRepository;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(propagation= Propagation.MANDATORY, readOnly = true, isolation = Isolation.SERIALIZABLE)
     public boolean uniqueNameAndAddress(Studio studio) {
         var studios = studioRepository.getStudiosByNameAndAddress(studio.getName(), studio.getAddress());
         return studios.isEmpty() || studios.size() == 1 && Objects.equals(studios.stream().findAny().get().getId(),
