@@ -26,7 +26,6 @@ public class MusicBandResource extends RESTResource<MusicBand, MusicBandDTO, Lon
     }
 
     @GetMapping(value = "")
-    @Transactional
     public Page<MusicBandDTO> getBands(@RequestParam(required = false) String owner,
                                        @RequestParam(required = false) String name,
                                        @RequestParam(required = false) String description,
@@ -36,7 +35,6 @@ public class MusicBandResource extends RESTResource<MusicBand, MusicBandDTO, Lon
     }
 
     @PostMapping(value = "/files")
-    @Transactional
     public String uploadBandsYAML(@RequestParam("file") MultipartFile file) throws IOException, DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
         var entities = bandService.createBatchEntitiesFromYAML(file.getInputStream());
         return String.format("Created %d bands", entities.size());

@@ -20,7 +20,6 @@ public class BatchRequestResource {
     }
 
     @GetMapping(value = "")
-    @Transactional
     public Page<BatchRequestDTO> getRequests(Pageable p) throws CallerIsNotAUser {
         return batchRequestService.getRequests(p);
 

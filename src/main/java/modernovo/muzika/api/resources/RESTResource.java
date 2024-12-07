@@ -33,7 +33,6 @@ public abstract class RESTResource<T extends Ownable, TDTO, ID extends Serializa
     }
 
     @DeleteMapping(value = "/{id}")
-    @Transactional
     public String deleteResource(@PathVariable ID id, HttpServletResponse response) throws AuthorizationException, ResourceNotFound,
             CallerIsNotAUser {
         entityService.deleteEntity(id);

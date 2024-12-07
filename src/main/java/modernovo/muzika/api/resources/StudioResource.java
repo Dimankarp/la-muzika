@@ -22,7 +22,6 @@ public class StudioResource extends RESTResource<Studio, StudioDTO, Long> {
     }
 
     @GetMapping(value = "")
-    @Transactional
     public Page<StudioDTO> getStudios(@RequestParam(required = false) String owner,
                                       @RequestParam(required = false) String name,
                                       @RequestParam(required = false) String address,

@@ -26,7 +26,6 @@ public class AdminRequestResource {
 
     @RolesAllowed(value = {"ADMIN"})
     @GetMapping(value = "")
-    @Transactional
     public Page<AdminRequestDTO> getPendingRequests(Pageable p) {
         return adminRequestService.getPendingRequestsDTO(p);
 
@@ -34,20 +33,17 @@ public class AdminRequestResource {
 
     @RolesAllowed(value = {"ADMIN"})
     @PostMapping(value = "/accept/{id}")
-    @Transactional
     public void acceptRequest(@PathVariable Long id) throws IllegalServiceArgumentException {
         adminRequestService.acceptRequset(id);
     }
 
     @PostMapping(value = "")
-    @Transactional
     public void createRequest() throws IllegalServiceArgumentException {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         adminRequestService.createRequest(auth.getName());
     }
 
     @GetMapping(value = "/pending")
-    @Transactional
     public AdminRequestDTO getMyRequest(HttpServletResponse response) throws IllegalServiceArgumentException, CallerIsNotAUser {
         var pendingOpt = adminRequestService.getMyRequest();
         if (pendingOpt.isPresent()) {

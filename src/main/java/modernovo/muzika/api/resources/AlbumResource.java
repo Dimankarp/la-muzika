@@ -23,7 +23,6 @@ public class AlbumResource extends RESTResource<Album, AlbumDTO, Long>{
     }
 
     @GetMapping(value = "")
-    @Transactional
     public Page<AlbumDTO> getAlbums(@RequestParam(required = false) String owner,
                                     @RequestParam(required = false) String name,
                                     @PageableDefault(sort = {"name"}, value = 50) Pageable p) throws IllegalServiceArgumentException {

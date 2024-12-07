@@ -7,6 +7,8 @@ import modernovo.muzika.repositories.StudioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Service
 public class StudioConstraintsService {
 
@@ -18,7 +20,9 @@ public class StudioConstraintsService {
 
     @Transactional(readOnly = true)
     public boolean uniqueNameAndAddress(Studio studio) {
-        return studioRepository.getStudiosByNameAndAddress(studio.getName(), studio.getAddress()).isEmpty();
+        var studios = studioRepository.getStudiosByNameAndAddress(studio.getName(), studio.getAddress());
+        return studios.isEmpty() || studios.size() == 1 && Objects.equals(studios.stream().findAny().get().getId(),
+                studio.getId());
     }
 
 }
