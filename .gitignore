@@ -39,3 +39,6 @@ out/
 ### Compiled Vue ###
 /src/main/resources/templates
 /src/main/resources/static
+
+### MiniIO Volume ###
+minio_data
