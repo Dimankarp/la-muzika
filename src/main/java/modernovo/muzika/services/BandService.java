@@ -11,6 +11,7 @@ import modernovo.muzika.model.specifications.BandSpecs;
 import modernovo.muzika.repositories.BandRepository;
 import modernovo.muzika.repositories.UserRepository;
 import modernovo.muzika.services.dto.creators.BandDTOCreatorService;
+import modernovo.muzika.services.dto.creators.MinIOException;
 import modernovo.muzika.services.entity.creators.BandEntityCreatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +21,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +44,10 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     private final AuditService auditService;
     private final YAMLService yamlService;
     private final BatchRequestService batchRequestService;
+    private final MinIOService minIOService;
 
-    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository,
-                       BandEntityCreatorService bandEntityCreatorService, BandEntityCreatorService bandEntityCreator,
-                       ResourceUtils resourceUtils, AuditService auditService, YAMLService yamlService,
-                       BatchRequestService batchRequestService) {
+
+    public BandService(UserRepository userRepo, BandDTOCreatorService bandCreator, BandRepository bandRepository, BandEntityCreatorService bandEntityCreatorService, BandEntityCreatorService bandEntityCreator, ResourceUtils resourceUtils, AuditService auditService, YAMLService yamlService, BatchRequestService batchRequestService, MinIOService minIOService) {
         super(resourceUtils, bandRepository, bandEntityCreatorService);
         this.userRepo = userRepo;
         this.bandCreator = bandCreator;
@@ -55,11 +57,13 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         this.auditService = auditService;
         this.yamlService = yamlService;
         this.batchRequestService = batchRequestService;
+        this.minIOService = minIOService;
     }
 
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Page<MusicBandDTO> getBandsDTO(String username, String nameLike, String descLike, Pageable p) throws IllegalServiceArgumentException {
-        Specification<MusicBand> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null : BandSpecs.nameLike(nameLike)).and(!StringUtils.hasLength(descLike) ? null : BandSpecs.descriptionLike(descLike));
+        Specification<MusicBand> filters = Specification.where(!StringUtils.hasLength(nameLike) ? null : BandSpecs.nameLike(nameLike))
+                .and(!StringUtils.hasLength(descLike) ? null : BandSpecs.descriptionLike(descLike));
         if (StringUtils.hasLength(username)) {
             var user = userRepo.findByUsername(username);
             if (user.isEmpty()) {
@@ -105,7 +109,8 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Optional<MusicBandDTO> removeBandByEstablishmentDate(ZonedDateTime date) throws CallerIsNotAUser {
         var user = resourceUtils.getCaller();
-        return user.getBands().stream().filter((x) -> x.getEstablishmentDate().equals(date)).findAny().map(bandCreator::toDTO);
+        return user.getBands().stream().filter((x) -> x.getEstablishmentDate().equals(date)).findAny()
+                .map(bandCreator::toDTO);
     }
 
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
@@ -137,25 +142,46 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         return bandCreator.toDTO(band);
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    public List<MusicBand> createBatchEntitiesFromYAML(InputStream stream) throws IOException, CallerIsNotAUser, DTOConstraintViolationException, EntityConstraintViolationException {
+    @Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
+    public List<MusicBand> importYAML(MultipartFile file) throws CallerIsNotAUser, IOException, EntityConstraintViolationException, DTOConstraintViolationException {
+
         var caller = resourceUtils.getCaller();
         var request = batchRequestService.createRequest(caller);
-        try {
-            var dtos = yamlService.parse(stream, MusicBandBatchDTO.class).getBands();
-            var entities = batchDTONewToEntities(dtos, caller);
-            var managedEntities = batchSaveEntities(entities);
-            request.setStatus(RequestStatus.ACCEPTED);
-            request.setAddedCount(entities.size());
-            return managedEntities;
-        } catch (Exception e) {
-            request.setStatus(RequestStatus.CANCELLED);
-            throw e;
-        }
+        String newfileName = request.getId().toString();
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
+            @Override
+            public void afterCommit() {
+                try {
+                    minIOService.unlockFile(newfileName);
+                } catch (Exception e) {
+                    logger.error("Failed to lift retention from file {}. Because of: {}", newfileName, e.getMessage());
+                }
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                    try {
+                        request.setStatus(RequestStatus.CANCELLED);
+                        minIOService.unlockFile(newfileName);
+                        minIOService.removeFile(newfileName);
+                    } catch (Exception e) {
+                        logger.error("Failed to rollback when importing file {}. Because of: {}", newfileName, e.getMessage());
+                    }
+                }
+            }
+        });
+        var dtos = yamlService.parse(file.getInputStream(), MusicBandBatchDTO.class).getBands();
+        var entities = batchDTONewToEntities(dtos, caller);
+        var managedEntities = batchSaveEntities(entities);
+        minIOService.saveAndLockFile(file.getInputStream(), file.getSize(), newfileName);
+        request.setStatus(RequestStatus.ACCEPTED);
+        request.setAddedCount(entities.size());
+        return managedEntities;
     }
 
-    private List<MusicBand> batchDTONewToEntities(List<MusicBandDTO> dtos, User caller) throws DTOConstraintViolationException,
-            CallerIsNotAUser, EntityConstraintViolationException {
+    private List<MusicBand> batchDTONewToEntities(List<MusicBandDTO> dtos, User caller) throws DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
         //Not using Stream API because of checked exception tragedy
         List<MusicBand> entities = new ArrayList<>();
         for (MusicBandDTO dto : dtos) {

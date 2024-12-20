@@ -1,7 +1,6 @@
 package modernovo.muzika.api.resources;
 
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import modernovo.muzika.model.MusicBand;
 import modernovo.muzika.model.dto.MusicBandDTO;
 import modernovo.muzika.services.*;
@@ -10,8 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 
 @RestController()
@@ -35,8 +32,8 @@ public class MusicBandResource extends RESTResource<MusicBand, MusicBandDTO, Lon
     }
 
     @PostMapping(value = "/files")
-    public String uploadBandsYAML(@RequestParam("file") MultipartFile file) throws IOException, DTOConstraintViolationException, CallerIsNotAUser, EntityConstraintViolationException {
-        var entities = bandService.createBatchEntitiesFromYAML(file.getInputStream());
+    public String uploadBandsYAML(@RequestParam("file") MultipartFile file) throws Exception {
+        var entities = bandService.importYAML(file);
         return String.format("Created %d bands", entities.size());
     }
 

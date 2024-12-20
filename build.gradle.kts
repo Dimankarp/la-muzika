@@ -23,8 +23,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+	implementation("io.minio:minio:8.3.3")
 
 	runtimeOnly("org.postgresql:postgresql")
+
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")

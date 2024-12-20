@@ -95,6 +95,24 @@ const prevPage = () => {
   }
 }
 
+const downloadFile = async (id) => {
+  try {
+    const response = await fetch(`/api/batches/files/${id}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `batch_request_${id}.yaml`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+  }
+};
+
 </script>
 
 <template>
@@ -118,6 +136,9 @@ const prevPage = () => {
           <td>{{ request.senderName }}</td>
           <td>{{ request.status }}</td>
           <td>{{ request.addedCount }}</td>
+          <td>
+            <button @click="downloadFile(request.id)">Download</button>
+          </td>
         </tr>
       </tbody>
     </table>
