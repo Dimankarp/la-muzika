@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 @ControllerAdvice
 class GlobalControllerExceptionHandler {
@@ -60,6 +61,12 @@ class GlobalControllerExceptionHandler {
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public @ResponseBody String handleUnrecognizedProperty(UnrecognizedPropertyException e) {
         return "Failed to recognize property";
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(code = HttpStatus.CONFLICT)
+    public @ResponseBody String handleSQLException(SQLException e) {
+        return "Something wen wrong";
     }
 
     @ExceptionHandler(IOException.class)

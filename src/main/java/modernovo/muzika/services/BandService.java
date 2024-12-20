@@ -137,7 +137,7 @@ public class BandService extends EntityService<MusicBand, MusicBandDTO, Long> {
         return bandCreator.toDTO(band);
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public List<MusicBand> createBatchEntitiesFromYAML(InputStream stream) throws IOException, CallerIsNotAUser, DTOConstraintViolationException, EntityConstraintViolationException {
         var caller = resourceUtils.getCaller();
         var request = batchRequestService.createRequest(caller);
